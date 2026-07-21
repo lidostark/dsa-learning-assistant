@@ -1,0 +1,2681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="An interactive DSA Learning Assistant and Python sandbox. Learn Data Structures and Algorithms with code execution and visualizations.">
+    <title>DSA Learning Assistant & Playground</title>
+    
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- CodeMirror Editor Styling & Theme -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/dracula.min.css">
+    
+    <!-- Syntax Highlighting (Highlight.js) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/tokyo-night-dark.min.css">
+    
+    <style>
+        :root {
+            --font-main: 'Inter', -apple-system, sans-serif;
+            --font-code: 'JetBrains Mono', monospace;
+            
+            /* Theme variables (Dark Mode default) */
+            --bg-gradient: radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 40%), 
+                           radial-gradient(circle at 90% 80%, rgba(76, 201, 240, 0.15) 0%, transparent 40%), 
+                           #090d16;
+            --bg-panel: rgba(17, 24, 39, 0.7);
+            --bg-panel-solid: #0d121f;
+            --bg-input: rgba(3, 7, 18, 0.6);
+            --border-panel: rgba(255, 255, 255, 0.08);
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --text-inverse: #0f172a;
+            
+            --color-primary: #6366f1;
+            --color-primary-dark: #4f46e5;
+            --color-primary-glow: rgba(99, 102, 241, 0.3);
+            --color-secondary: #06b6d4;
+            --color-secondary-glow: rgba(6, 182, 212, 0.25);
+            --color-success: #10b981;
+            --color-danger: #ef4444;
+            
+            --shadow-premium: 0 10px 30px rgba(0, 0, 0, 0.35);
+            --radius-main: 16px;
+            --radius-btn: 999px;
+            
+            --sidebar-width: 290px;
+            --sandbox-width: 480px;
+        }
+
+        [data-theme="light"] {
+            --bg-gradient: radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.06) 0%, transparent 40%), 
+                           radial-gradient(circle at 90% 80%, rgba(76, 201, 240, 0.06) 0%, transparent 40%), 
+                           #f1f5f9;
+            --bg-panel: rgba(255, 255, 255, 0.75);
+            --bg-panel-solid: #ffffff;
+            --bg-input: rgba(241, 245, 249, 0.9);
+            --border-panel: rgba(0, 0, 0, 0.08);
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --text-inverse: #ffffff;
+            
+            --color-primary: #4f46e5;
+            --color-primary-dark: #3730a3;
+            --color-primary-glow: rgba(79, 70, 229, 0.15);
+            --color-secondary: #0891b2;
+            --color-secondary-glow: rgba(8, 145, 178, 0.15);
+            --color-success: #16a34a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            height: 100vh;
+            display: grid;
+            grid-template-rows: 64px 1fr;
+            grid-template-columns: var(--sidebar-width) 1fr var(--sandbox-width);
+            grid-template-areas: 
+                "header header header"
+                "sidebar chat sandbox";
+            overflow: hidden;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        body.sidebar-collapsed {
+            grid-template-columns: 0px 1fr var(--sandbox-width);
+        }
+
+        body.sandbox-collapsed {
+            grid-template-columns: var(--sidebar-width) 1fr 0px;
+        }
+
+        body.sidebar-collapsed.sandbox-collapsed {
+            grid-template-columns: 0px 1fr 0px;
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(156, 163, 175, 0.25);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(156, 163, 175, 0.45);
+        }
+
+        /* HEADER */
+        header {
+            grid-area: header;
+            background: var(--bg-panel);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border-panel);
+            padding: 0 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 100;
+            box-shadow: var(--shadow-premium);
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .header-logo {
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .header-logo i {
+            background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-title-text h1 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .header-title-text p {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .header-btn {
+            background: rgba(156, 163, 175, 0.1);
+            border: 1px solid var(--border-panel);
+            color: var(--text-main);
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .header-btn:hover {
+            background: var(--color-primary-glow);
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+            transform: translateY(-1px);
+        }
+
+        .header-btn.active {
+            background: var(--color-primary);
+            border-color: var(--color-primary);
+            color: var(--text-inverse);
+        }
+
+        .progress-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: rgba(156, 163, 175, 0.08);
+            padding: 0.4rem 0.8rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-panel);
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .progress-bar-container {
+            width: 80px;
+            height: 6px;
+            background: rgba(156, 163, 175, 0.2);
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* SIDEBAR (CURRICULUM) */
+        aside {
+            grid-area: sidebar;
+            background: var(--bg-panel);
+            backdrop-filter: blur(12px);
+            border-right: 1px solid var(--border-panel);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            width: var(--sidebar-width);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body.sidebar-collapsed aside {
+            transform: translateX(-100%);
+            margin-left: calc(-1 * var(--sidebar-width));
+        }
+
+        .sidebar-header {
+            padding: 1rem 1.25rem;
+            font-size: 0.9rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border-panel);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .curriculum-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0.75rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .curriculum-category {
+            border: 1px solid var(--border-panel);
+            border-radius: 12px;
+            overflow: hidden;
+            background: rgba(3, 7, 18, 0.2);
+        }
+
+        .category-header {
+            padding: 0.8rem 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.2s ease;
+        }
+
+        .category-header:hover {
+            background: rgba(156, 163, 175, 0.05);
+        }
+
+        .category-title {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .category-title i {
+            color: var(--color-primary);
+        }
+
+        .category-icon-chevron {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            transition: transform 0.3s ease;
+        }
+
+        .curriculum-category.open .category-icon-chevron {
+            transform: rotate(180deg);
+        }
+
+        .category-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-top: 1px solid transparent;
+        }
+
+        .curriculum-category.open .category-body {
+            max-height: 500px;
+            border-top-color: var(--border-panel);
+        }
+
+        .subtopic-item {
+            padding: 0.75rem 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            border-bottom: 1px solid rgba(156, 163, 175, 0.06);
+            transition: background 0.2s ease;
+        }
+
+        .subtopic-item:last-child {
+            border-bottom: none;
+        }
+
+        .subtopic-item:hover {
+            background: rgba(156, 163, 175, 0.04);
+        }
+
+        .subtopic-left {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            flex: 1;
+            cursor: pointer;
+        }
+
+        .subtopic-checkbox {
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--text-muted);
+            border-radius: 4px;
+            outline: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .subtopic-checkbox:checked {
+            background: var(--color-success);
+            border-color: var(--color-success);
+        }
+
+        .subtopic-checkbox:checked::after {
+            content: "\f00c";
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            color: #fff;
+            font-size: 9px;
+        }
+
+        .subtopic-label {
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+
+        .subtopic-checkbox:checked + .subtopic-label {
+            color: var(--text-muted);
+            text-decoration: line-through;
+        }
+
+        .subtopic-learn-btn {
+            background: transparent;
+            border: none;
+            color: var(--color-primary);
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.2s ease;
+        }
+
+        .subtopic-learn-btn:hover {
+            background: var(--color-primary-glow);
+            transform: translateX(2px);
+        }
+
+        .sidebar-footer {
+            padding: 1rem;
+            border-top: 1px solid var(--border-panel);
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+
+        .sidebar-footer-btn {
+            background: rgba(156, 163, 175, 0.08);
+            border: 1px solid var(--border-panel);
+            color: var(--text-main);
+            padding: 0.6rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.2s ease;
+        }
+
+        .sidebar-footer-btn:hover {
+            background: rgba(156, 163, 175, 0.15);
+            border-color: var(--text-muted);
+        }
+
+        .sidebar-footer-btn.danger-btn:hover {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: var(--color-danger);
+            color: var(--color-danger);
+        }
+
+        /* CHAT CONTAINER */
+        main {
+            grid-area: chat;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: transparent;
+            position: relative;
+        }
+
+        .chat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 1.25rem;
+            border-bottom: 1px solid var(--border-panel);
+            background: rgba(13, 18, 31, 0.3);
+        }
+
+        .chat-topic-indicator {
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--color-primary);
+        }
+
+        #chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .message-bubble-wrapper {
+            display: flex;
+            gap: 0.85rem;
+            max-width: 82%;
+            animation: bubbleFadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .message-bubble-wrapper.user {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+
+        .message-bubble-wrapper.assistant {
+            align-self: flex-start;
+        }
+
+        .message-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--bg-panel-solid);
+            border: 1px solid var(--border-panel);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .message-bubble-wrapper.user .message-avatar {
+            background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+            color: white;
+            border: none;
+        }
+
+        .message-bubble-wrapper.assistant .message-avatar {
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+        }
+
+        .message-bubble {
+            padding: 1rem 1.25rem;
+            border-radius: 18px;
+            line-height: 1.6;
+            font-size: 0.9rem;
+            box-shadow: var(--shadow-premium);
+            position: relative;
+        }
+
+        .message-bubble-wrapper.user .message-bubble {
+            background: linear-gradient(135deg, var(--color-primary-dark), var(--color-primary));
+            color: white;
+            border-top-right-radius: 2px;
+        }
+
+        .message-bubble-wrapper.assistant .message-bubble {
+            background: var(--bg-panel-solid);
+            border: 1px solid var(--border-panel);
+            border-top-left-radius: 2px;
+            color: var(--text-main);
+        }
+
+        /* Markdown elements inside message bubble */
+        .message-bubble h1, .message-bubble h2, .message-bubble h3 {
+            margin-top: 0.8rem;
+            margin-bottom: 0.4rem;
+            font-weight: 700;
+        }
+        .message-bubble h1 { font-size: 1.15rem; }
+        .message-bubble h2 { font-size: 1.05rem; }
+        .message-bubble h3 { font-size: 0.95rem; }
+        .message-bubble p { margin-bottom: 0.75rem; }
+        .message-bubble p:last-child { margin-bottom: 0; }
+        .message-bubble ul, .message-bubble ol {
+            margin-left: 1.25rem;
+            margin-bottom: 0.75rem;
+        }
+        .message-bubble li {
+            margin-bottom: 0.25rem;
+        }
+        
+        /* Code blocks design inside markdown */
+        .code-wrapper {
+            margin: 0.9rem 0;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid var(--border-panel);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .code-header {
+            background: rgba(3, 7, 18, 0.8);
+            padding: 0.5rem 0.85rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-family: var(--font-code);
+        }
+        
+        .code-lang {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+        
+        .code-lang i {
+            color: #3776ab; /* Python blue */
+        }
+        
+        .code-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .code-action-btn {
+            background: rgba(156, 163, 175, 0.15);
+            border: none;
+            color: var(--text-main);
+            padding: 3px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.7rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.2s ease;
+        }
+        
+        .code-action-btn:hover {
+            background: var(--color-primary);
+            color: var(--text-inverse);
+        }
+        
+        .message-bubble pre {
+            margin: 0;
+            padding: 0.85rem;
+            overflow-x: auto;
+            background: #0d1117 !important;
+        }
+        
+        .message-bubble code {
+            font-family: var(--font-code);
+            font-size: 0.8rem;
+            background: rgba(156, 163, 175, 0.15);
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+        
+        .code-wrapper pre code {
+            padding: 0;
+            background: transparent;
+            border-radius: 0;
+        }
+
+        .message-speech-controls {
+            display: flex;
+            gap: 4px;
+            position: absolute;
+            right: -36px;
+            top: 4px;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .message-bubble-wrapper:hover .message-speech-controls {
+            opacity: 1;
+        }
+
+        .speech-btn {
+            background: var(--bg-panel-solid);
+            border: 1px solid var(--border-panel);
+            color: var(--text-muted);
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            transition: all 0.2s ease;
+        }
+
+        .speech-btn:hover {
+            color: var(--color-primary);
+            border-color: var(--color-primary);
+            transform: scale(1.05);
+        }
+
+        .speech-btn.playing {
+            color: var(--color-success);
+            border-color: var(--color-success);
+            animation: pulseRecord 1.5s infinite;
+        }
+
+        /* Typewriter Skeleton Loader */
+        .loading-bubble {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 0.5rem 0.8rem;
+        }
+
+        .loading-dot {
+            width: 7px;
+            height: 7px;
+            background: var(--text-muted);
+            border-radius: 50%;
+            animation: loadingDot 1.4s infinite both;
+        }
+
+        .loading-dot:nth-child(2) { animation-delay: 0.2s; }
+        .loading-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        /* Welcome Screen inside empty chat */
+        .welcome-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            height: 100%;
+            padding: 2rem;
+            max-width: 600px;
+            margin: 0 auto;
+            gap: 1.25rem;
+        }
+
+        .welcome-icon {
+            width: 68px;
+            height: 68px;
+            border-radius: 20px;
+            background: var(--color-primary-glow);
+            color: var(--color-primary);
+            font-size: 2.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border-panel);
+            margin-bottom: 0.5rem;
+            box-shadow: var(--shadow-premium);
+        }
+
+        .welcome-container h2 {
+            font-size: 1.5rem;
+            font-weight: 800;
+        }
+
+        .welcome-container p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .welcome-suggestions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        .suggestion-card {
+            background: var(--bg-panel-solid);
+            border: 1px solid var(--border-panel);
+            padding: 0.9rem;
+            border-radius: 12px;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .suggestion-card:hover {
+            border-color: var(--color-primary);
+            transform: translateY(-2px);
+            background: var(--color-primary-glow);
+        }
+
+        .suggestion-card h4 {
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .suggestion-card p {
+            font-size: 0.75rem;
+            margin-bottom: 0;
+        }
+
+        /* INPUT AREA */
+        #input-container {
+            padding: 1.25rem 1.5rem 1.5rem;
+            background: rgba(13, 18, 31, 0.4);
+            border-top: 1px solid var(--border-panel);
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .input-bar-wrapper {
+            display: flex;
+            align-items: flex-end;
+            gap: 0.75rem;
+            background: var(--bg-input);
+            border: 1px solid var(--border-panel);
+            border-radius: 24px;
+            padding: 0.4rem 0.6rem 0.4rem 1.2rem;
+            transition: all 0.2s ease;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        .input-bar-wrapper:focus-within {
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px var(--color-primary-glow);
+        }
+
+        #user-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text-main);
+            font-size: 0.95rem;
+            font-family: var(--font-main);
+            outline: none;
+            resize: none;
+            max-height: 120px;
+            height: 38px;
+            padding: 8px 0;
+            line-height: 1.4;
+        }
+
+        .input-action-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .input-action-btn:hover {
+            color: var(--text-main);
+            background: rgba(156, 163, 175, 0.1);
+        }
+
+        .input-action-btn.active-record {
+            color: var(--color-danger);
+            background: rgba(239, 68, 68, 0.1);
+            animation: pulseRecord 1.5s infinite;
+        }
+
+        #send-btn {
+            background: var(--color-primary);
+            color: var(--text-inverse);
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 10px rgba(99, 102, 241, 0.4);
+        }
+
+        #send-btn:hover {
+            background: var(--color-primary-dark);
+            transform: scale(1.05);
+        }
+
+        #send-btn:disabled {
+            background: rgba(156, 163, 175, 0.15);
+            color: var(--text-muted);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* SANDBOX PANEL (RIGHT) */
+        #sandbox-panel {
+            grid-area: sandbox;
+            background: var(--bg-panel);
+            backdrop-filter: blur(12px);
+            border-left: 1px solid var(--border-panel);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            width: var(--sandbox-width);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), margin-right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body.sandbox-collapsed #sandbox-panel {
+            transform: translateX(100%);
+            margin-right: calc(-1 * var(--sandbox-width));
+        }
+
+        .sandbox-tabs {
+            display: flex;
+            background: rgba(13, 18, 31, 0.5);
+            border-bottom: 1px solid var(--border-panel);
+            padding: 0 0.5rem;
+        }
+
+        .sandbox-tab {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 1rem 0.5rem;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .sandbox-tab:hover {
+            color: var(--text-main);
+        }
+
+        .sandbox-tab.active {
+            color: var(--color-primary);
+            border-bottom-color: var(--color-primary);
+        }
+
+        .sandbox-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .sandbox-view {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .sandbox-view.active {
+            display: flex;
+        }
+
+        /* PLAYGROUND TAB */
+        .playground-toolbar {
+            padding: 0.75rem 1rem;
+            background: rgba(3, 7, 18, 0.2);
+            border-bottom: 1px solid var(--border-panel);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .playground-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-muted);
+        }
+
+        .playground-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .playground-btn {
+            background: rgba(156, 163, 175, 0.1);
+            border: 1px solid var(--border-panel);
+            color: var(--text-main);
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .playground-btn:hover {
+            background: rgba(156, 163, 175, 0.2);
+        }
+
+        .playground-btn.run-btn {
+            background: var(--color-primary);
+            border-color: var(--color-primary);
+            color: var(--text-inverse);
+        }
+
+        .playground-btn.run-btn:hover {
+            background: var(--color-primary-dark);
+        }
+
+        .playground-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .editor-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .CodeMirror {
+            height: 100%;
+            font-family: var(--font-code);
+            font-size: 0.85rem;
+        }
+
+        .console-container {
+            height: 180px;
+            background: #030712;
+            border-top: 2px solid var(--border-panel);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .console-header {
+            padding: 0.4rem 0.85rem;
+            background: #0b0f19;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .console-output {
+            flex: 1;
+            padding: 0.75rem;
+            overflow-y: auto;
+            font-family: var(--font-code);
+            font-size: 0.8rem;
+            white-space: pre-wrap;
+            line-height: 1.4;
+            color: #e5e7eb;
+        }
+
+        .console-line.stderr {
+            color: var(--color-danger);
+        }
+        
+        .console-line.success {
+            color: var(--color-success);
+        }
+
+        .console-line.info {
+            color: var(--color-secondary);
+        }
+
+        /* VISUALIZER TAB */
+        .visualizer-selector-bar {
+            padding: 0.75rem 1rem;
+            background: rgba(3, 7, 18, 0.2);
+            border-bottom: 1px solid var(--border-panel);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .visualizer-selector-bar label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-muted);
+        }
+
+        .visualizer-select {
+            background: var(--bg-panel-solid);
+            border: 1px solid var(--border-panel);
+            color: var(--text-main);
+            padding: 0.35rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .visualizer-display {
+            flex: 1;
+            min-height: 250px;
+            background: rgba(3, 7, 18, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            overflow: auto;
+            position: relative;
+        }
+
+        .visualizer-controls-panel {
+            padding: 1.25rem;
+            background: rgba(13, 18, 31, 0.5);
+            border-top: 1px solid var(--border-panel);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .visualizer-control-group {
+            display: none;
+            gap: 0.75rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .visualizer-control-group.active {
+            display: flex;
+        }
+
+        .visualizer-input {
+            background: var(--bg-panel-solid);
+            border: 1px solid var(--border-panel);
+            color: var(--text-main);
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            outline: none;
+            width: 70px;
+        }
+
+        .visualizer-btn {
+            background: var(--color-primary);
+            color: var(--text-inverse);
+            border: none;
+            padding: 0.5rem 0.9rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .visualizer-btn:hover {
+            background: var(--color-primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .visualizer-btn.secondary-vis-btn {
+            background: rgba(156, 163, 175, 0.1);
+            color: var(--text-main);
+            border: 1px solid var(--border-panel);
+        }
+
+        .visualizer-btn.secondary-vis-btn:hover {
+            background: rgba(156, 163, 175, 0.2);
+        }
+
+        /* DATA STRUCTURE SPECIFIC STYLES */
+        
+        /* Stack visual design */
+        .stack-vis-container {
+            display: flex;
+            flex-direction: column-reverse;
+            justify-content: flex-start;
+            align-items: center;
+            width: 150px;
+            height: 280px;
+            border: 3px solid var(--text-muted);
+            border-top: none;
+            border-radius: 0 0 12px 12px;
+            padding: 8px;
+            gap: 6px;
+            background: rgba(3, 7, 18, 0.4);
+            position: relative;
+        }
+
+        .stack-element {
+            width: 100%;
+            height: 38px;
+            background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 0.85rem;
+            font-family: var(--font-code);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            animation: slideInDown 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .stack-element.popping {
+            animation: slideOutUp 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        .stack-top-pointer {
+            position: absolute;
+            left: -80px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--color-secondary);
+            font-weight: 700;
+            font-size: 0.75rem;
+            animation: fadeIn 0.2s ease;
+        }
+
+        /* Queue visual design */
+        .queue-vis-container {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            min-width: 320px;
+            height: 60px;
+            border-top: 3px dashed var(--text-muted);
+            border-bottom: 3px dashed var(--text-muted);
+            padding: 0 8px;
+            gap: 8px;
+            background: rgba(3, 7, 18, 0.2);
+        }
+
+        .queue-element {
+            width: 48px;
+            height: 44px;
+            background: linear-gradient(135deg, var(--color-secondary), var(--color-primary));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 0.85rem;
+            font-family: var(--font-code);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            animation: slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .queue-element.dequeuing {
+            animation: slideOutLeft 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        .queue-pointer {
+            position: absolute;
+            bottom: -24px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: var(--color-secondary);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Array visual design */
+        .array-vis-container {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .array-element-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .array-element {
+            width: 44px;
+            height: 44px;
+            border: 2px solid var(--border-panel);
+            background: var(--bg-panel-solid);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: var(--text-main);
+            font-family: var(--font-code);
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .array-element.highlight-search {
+            border-color: var(--color-secondary);
+            background: var(--color-secondary-glow);
+            transform: scale(1.1);
+        }
+
+        .array-element.highlight-access {
+            border-color: var(--color-primary);
+            background: var(--color-primary-glow);
+            transform: scale(1.1);
+        }
+
+        .array-index {
+            font-size: 0.65rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            font-family: var(--font-code);
+        }
+
+        /* Linked List visual design */
+        .linkedlist-vis-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 10px;
+            justify-content: flex-start;
+            max-width: 100%;
+        }
+
+        .ll-node {
+            display: flex;
+            border: 2px solid var(--color-primary);
+            border-radius: 8px;
+            overflow: hidden;
+            background: var(--bg-panel-solid);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            animation: fadeIn 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .ll-val {
+            padding: 8px 12px;
+            font-family: var(--font-code);
+            font-size: 0.85rem;
+            font-weight: 700;
+            border-right: 1.5px solid var(--color-primary);
+        }
+
+        .ll-next {
+            padding: 8px 6px;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            font-family: var(--font-code);
+            display: flex;
+            align-items: center;
+            background: rgba(156, 163, 175, 0.05);
+        }
+
+        .ll-arrow {
+            font-size: 1.1rem;
+            color: var(--color-secondary);
+            animation: arrowPulse 1.5s infinite;
+            flex-shrink: 0;
+        }
+
+        .ll-null {
+            font-family: var(--font-code);
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            padding: 8px;
+            border: 2px dashed var(--border-panel);
+            border-radius: 8px;
+            flex-shrink: 0;
+        }
+
+        /* FLOATING TOASTS */
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .toast {
+            background: var(--bg-panel-solid);
+            border-left: 4px solid var(--color-primary);
+            color: var(--text-main);
+            padding: 0.75rem 1.25rem;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            animation: toastIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            border: 1px solid var(--border-panel);
+            border-left-width: 4px;
+        }
+
+        .toast.success { border-left-color: var(--color-success); }
+        .toast.error { border-left-color: var(--color-danger); }
+        .toast.info { border-left-color: var(--color-secondary); }
+
+        /* ANIMATIONS */
+        @keyframes bubbleFadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes toastIn {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes loadingDot {
+            0% { opacity: .2; }
+            20% { opacity: 1; }
+            100% { opacity: .2; }
+        }
+
+        @keyframes pulseRecord {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+            70% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+
+        @keyframes slideInDown {
+            from { transform: translateY(-30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes slideOutUp {
+            to { transform: translateY(-40px); opacity: 0; }
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(30px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes slideOutLeft {
+            to { transform: translateX(-40px); opacity: 0; }
+        }
+
+        @keyframes arrowPulse {
+            0%, 100% { opacity: 0.7; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.15) translateX(3px); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Responsive overrides */
+        @media (max-width: 1024px) {
+            body {
+                grid-template-columns: 1fr;
+                grid-template-areas: 
+                    "header"
+                    "chat";
+            }
+            aside, #sandbox-panel {
+                position: fixed;
+                top: 64px;
+                height: calc(100vh - 64px);
+                z-index: 99;
+            }
+            aside {
+                left: 0;
+            }
+            #sandbox-panel {
+                right: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER -->
+    <header>
+        <div class="header-brand">
+            <button id="toggle-sidebar" class="header-btn" title="Toggle Curriculum">
+                <i class="fa-solid fa-list-check"></i>
+            </button>
+            <div class="header-logo">
+                <i class="fa-solid fa-graduation-cap"></i>
+                <div class="header-title-text">
+                    <h1>DSA Assistant</h1>
+                    <p>Interactive Tutor & Sandbox</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="header-controls">
+            <div class="progress-indicator">
+                <span>Course Progress</span>
+                <div class="progress-bar-container">
+                    <div id="course-progress-fill" class="progress-bar-fill"></div>
+                </div>
+                <span id="progress-percentage">0%</span>
+            </div>
+            
+            <button id="theme-toggle" class="header-btn" title="Toggle Light/Dark Mode">
+                <i class="fa-solid fa-moon"></i>
+            </button>
+            
+            <button id="toggle-sandbox" class="header-btn active" title="Toggle Sandbox Panel">
+                <i class="fa-solid fa-code"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- SIDEBAR (Curriculum Tracker) -->
+    <aside id="sidebar-panel">
+        <div class="sidebar-header">
+            <span>Learning Modules</span>
+            <i class="fa-solid fa-road"></i>
+        </div>
+        
+        <div id="curriculum-list" class="curriculum-list">
+            <!-- Rendered Dynamically via JS -->
+        </div>
+
+        <div class="sidebar-footer">
+            <button id="reset-session-btn" class="sidebar-footer-btn danger-btn">
+                <i class="fa-solid fa-rotate-left"></i> Reset Chat Session
+            </button>
+            <button id="export-chat-btn" class="sidebar-footer-btn">
+                <i class="fa-solid fa-download"></i> Export Chat (Markdown)
+            </button>
+        </div>
+    </aside>
+
+    <!-- CHAT INTERFACE (Center) -->
+    <main>
+        <div class="chat-header">
+            <div id="active-topic-indicator" class="chat-topic-indicator">
+                <i class="fa-regular fa-comments"></i> <span>General Mentorship</span>
+            </div>
+        </div>
+        
+        <div id="chat-messages">
+            <!-- Initialized with a welcome screen or chat records -->
+        </div>
+
+        <div id="input-container">
+            <div class="input-bar-wrapper">
+                <textarea id="user-input" placeholder="Ask your tutor a question (e.g. 'How does binary search work?')..." rows="1"></textarea>
+                <button id="voice-input-btn" class="input-action-btn" title="Voice Input (Speech-to-Text)">
+                    <i class="fa-solid fa-microphone"></i>
+                </button>
+                <button id="send-btn" disabled>
+                    <i class="fa-solid fa-arrow-up"></i>
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- SANDBOX / VISUALIZER PANEL (Right) -->
+    <aside id="sandbox-panel">
+        <div class="sandbox-tabs">
+            <button id="tab-btn-playground" class="sandbox-tab active">
+                <i class="fa-brands fa-python"></i> Python Sandbox
+            </button>
+            <button id="tab-btn-visualizer" class="sandbox-tab">
+                <i class="fa-solid fa-chart-simple"></i> Visualizer
+            </button>
+        </div>
+
+        <div class="sandbox-content">
+            <!-- PLAYGROUND TAB VIEW -->
+            <div id="view-playground" class="sandbox-view active">
+                <div class="playground-toolbar">
+                    <span class="playground-title"><i class="fa-solid fa-terminal"></i> Interactive Shell</span>
+                    <div class="playground-actions">
+                        <button id="clear-console-btn" class="playground-btn" title="Clear Console">
+                            <i class="fa-solid fa-eraser"></i> Clear
+                        </button>
+                        <button id="run-code-btn" class="playground-btn run-btn" title="Run Python Code" disabled>
+                            <i class="fa-solid fa-play"></i> Run Code
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="editor-container">
+                    <textarea id="python-editor-textarea"># Type or copy your Python code here
+def greet(name):
+    print(f"Hello, {name}!")
+    return "Complete!"
+
+res = greet("DSA Student")
+print("Returned:", res)
+</textarea>
+                </div>
+
+                <div class="console-container">
+                    <div class="console-header">
+                        <span>Console Output</span>
+                        <i class="fa-solid fa-bug"></i>
+                    </div>
+                    <div id="console-output" class="console-output"></div>
+                </div>
+            </div>
+
+            <!-- VISUALIZER TAB VIEW -->
+            <div id="view-visualizer" class="sandbox-view">
+                <div class="visualizer-selector-bar">
+                    <label for="visualizer-type">Select Structure:</label>
+                    <select id="visualizer-type" class="visualizer-select">
+                        <option value="array">Array (List)</option>
+                        <option value="stack">Stack (LIFO)</option>
+                        <option value="queue">Queue (FIFO)</option>
+                        <option value="linkedlist">Linked List</option>
+                    </select>
+                </div>
+
+                <div id="visualizer-display" class="visualizer-display">
+                    <!-- Dynamic visualizations drawn here -->
+                </div>
+
+                <div class="visualizer-controls-panel">
+                    <!-- Array Controls -->
+                    <div id="ctrls-array" class="visualizer-control-group active">
+                        <input type="number" id="arr-val" class="visualizer-input" placeholder="Val">
+                        <button id="btn-arr-append" class="visualizer-btn"><i class="fa-solid fa-plus"></i> Append</button>
+                        <input type="number" id="arr-idx" class="visualizer-input" placeholder="Idx" style="width: 50px;">
+                        <button id="btn-arr-insert" class="visualizer-btn secondary-vis-btn">Insert</button>
+                        <button id="btn-arr-delete" class="visualizer-btn secondary-vis-btn"><i class="fa-solid fa-trash-can"></i> Delete</button>
+                        <button id="btn-arr-search" class="visualizer-btn secondary-vis-btn"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
+                    </div>
+
+                    <!-- Stack Controls -->
+                    <div id="ctrls-stack" class="visualizer-control-group">
+                        <input type="text" id="stack-val" class="visualizer-input" placeholder="Value">
+                        <button id="btn-stack-push" class="visualizer-btn"><i class="fa-solid fa-arrow-down-long"></i> Push</button>
+                        <button id="btn-stack-pop" class="visualizer-btn secondary-vis-btn"><i class="fa-solid fa-arrow-up-long"></i> Pop</button>
+                        <button id="btn-stack-clear" class="visualizer-btn secondary-vis-btn">Clear</button>
+                    </div>
+
+                    <!-- Queue Controls -->
+                    <div id="ctrls-queue" class="visualizer-control-group">
+                        <input type="text" id="queue-val" class="visualizer-input" placeholder="Value">
+                        <button id="btn-queue-enqueue" class="visualizer-btn"><i class="fa-solid fa-right-to-bracket"></i> Enqueue</button>
+                        <button id="btn-queue-dequeue" class="visualizer-btn secondary-vis-btn"><i class="fa-solid fa-right-from-bracket"></i> Dequeue</button>
+                        <button id="btn-queue-clear" class="visualizer-btn secondary-vis-btn">Clear</button>
+                    </div>
+
+                    <!-- Linked List Controls -->
+                    <div id="ctrls-linkedlist" class="visualizer-control-group">
+                        <input type="text" id="ll-val" class="visualizer-input" placeholder="Value">
+                        <button id="btn-ll-head" class="visualizer-btn">Insert Head</button>
+                        <button id="btn-ll-tail" class="visualizer-btn secondary-vis-btn">Insert Tail</button>
+                        <button id="btn-ll-delhead" class="visualizer-btn secondary-vis-btn">Del Head</button>
+                        <button id="btn-ll-clear" class="visualizer-btn secondary-vis-btn">Clear</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Scripts Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/languages/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/python/python.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>
+
+    <!-- App Logic -->
+    <script>
+        // --- DATA STRUCTURE CURRICULUM DEFINITION ---
+        const dsaCurriculum = [
+            {
+                category: "Arrays & Hashing",
+                icon: "fa-solid fa-table-cells",
+                subtopics: [
+                    { id: "static-dynamic-arrays", name: "Static & Dynamic Arrays", prompt: "Explain static versus dynamic arrays. What are their time complexities for access, search, insertion, and deletion?" },
+                    { id: "two-sum", name: "Two Sum Problem", prompt: "Explain the Two Sum problem. Walk through the brute force O(n^2) approach and the optimized O(n) hash map approach with Python code." },
+                    { id: "reverse-array", name: "Reverse an Array", prompt: "Explain how to reverse an array in-place using the two-pointer technique in Python." }
+                ]
+            },
+            {
+                category: "Stacks & Queues",
+                icon: "fa-solid fa-layer-group",
+                subtopics: [
+                    { id: "stack-list", name: "Stack via List/Deque", prompt: "Explain the Stack data structure. Show how to implement a Stack in Python using lists and collections.deque, highlighting push/pop operations." },
+                    { id: "queue-deque", name: "Queue via Deque", prompt: "Explain the Queue data structure. Show how to implement a Queue in Python using collections.deque, highlighting enqueue/dequeue operations." },
+                    { id: "valid-parentheses", name: "Valid Parentheses", prompt: "Explain the Valid Parentheses problem. Walk through how to solve it using a Stack in Python." }
+                ]
+            },
+            {
+                category: "Linked Lists",
+                icon: "fa-solid fa-link",
+                subtopics: [
+                    { id: "singly-linked-list", name: "Singly Linked List", prompt: "Explain what a Singly Linked List is. Code a Node class and a LinkedList class in Python with insert_at_head and insert_at_tail methods." },
+                    { id: "reverse-linked-list", name: "Reverse Linked List", prompt: "Explain how to reverse a Singly Linked List in-place. Show the iterative Python code step-by-step." }
+                ]
+            },
+            {
+                category: "Trees & Graphs",
+                icon: "fa-solid fa-tree",
+                subtopics: [
+                    { id: "binary-tree-traversal", name: "Binary Tree Traversals", prompt: "Explain preorder, inorder, and postorder traversals of a binary search tree. Provide recursive Python implementation." },
+                    { id: "binary-search-tree", name: "Binary Search Trees (BST)", prompt: "Explain the properties of a Binary Search Tree (BST). Code the insert and search methods in Python." },
+                    { id: "dfs-bfs-graphs", name: "DFS & BFS in Graphs", prompt: "Explain Depth First Search (DFS) and Breadth First Search (BFS) for graph traversal. Provide standard Python implementations using an adjacency list." }
+                ]
+            },
+            {
+                category: "Sorting & Searching",
+                icon: "fa-solid fa-arrow-down-9-1",
+                subtopics: [
+                    { id: "binary-search", name: "Binary Search Algorithm", prompt: "Explain Binary Search. What is its time complexity? Write the iterative and recursive implementations in Python." },
+                    { id: "merge-sort", name: "Merge Sort Algorithm", prompt: "Explain the Divide and Conquer strategy. Code the Merge Sort algorithm in Python, showing how it merges subarrays." }
+                ]
+            },
+            {
+                category: "Dynamic Programming",
+                icon: "fa-solid fa-puzzle-piece",
+                subtopics: [
+                    { id: "fibonacci-memoization", name: "Fibonacci Memoization", prompt: "Explain Dynamic Programming using Fibonacci. Show the recursive approach, the memoized approach (top-down), and the tabulated approach (bottom-up) in Python." },
+                    { id: "coin-change", name: "Coin Change Problem", prompt: "Explain the Coin Change problem. Provide a bottom-up Dynamic Programming solution in Python with time/space complexity analysis." }
+                ]
+            }
+        ];
+
+        // --- STATE MANAGEMENT ---
+        let currentTheme = localStorage.getItem('theme') || 'dark';
+        let completedSubtopics = JSON.parse(localStorage.getItem('completedSubtopics')) || [];
+        let messagesHistory = [];
+        let pyodideInstance = null;
+        let isPyodideLoading = false;
+        let currentUtterance = null;
+        let isSpeaking = false;
+        let activeSpeakerBtn = null;
+
+        // --- DOM ELEMENTS ---
+        const themeToggle = document.getElementById('theme-toggle');
+        const toggleSidebar = document.getElementById('toggle-sidebar');
+        const toggleSandbox = document.getElementById('toggle-sandbox');
+        const curriculumListEl = document.getElementById('curriculum-list');
+        const chatMessages = document.getElementById('chat-messages');
+        const userInput = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+        const resetSessionBtn = document.getElementById('reset-session-btn');
+        const exportChatBtn = document.getElementById('export-chat-btn');
+        const activeTopicText = document.getElementById('active-topic-indicator').querySelector('span');
+        const progressFill = document.getElementById('course-progress-fill');
+        const progressText = document.getElementById('progress-percentage');
+        
+        const tabBtnPlayground = document.getElementById('tab-btn-playground');
+        const tabBtnVisualizer = document.getElementById('tab-btn-visualizer');
+        const viewPlayground = document.getElementById('view-playground');
+        const viewVisualizer = document.getElementById('view-visualizer');
+        
+        const clearConsoleBtn = document.getElementById('clear-console-btn');
+        const runCodeBtn = document.getElementById('run-code-btn');
+        const consoleOutput = document.getElementById('console-output');
+        
+        const visTypeSelect = document.getElementById('visualizer-type');
+        const visDisplay = document.getElementById('visualizer-display');
+        
+        const voiceInputBtn = document.getElementById('voice-input-btn');
+        const toastContainer = document.getElementById('toast-container');
+
+        // --- INITS ---
+        document.documentElement.setAttribute('data-theme', currentTheme);
+        updateThemeIcon();
+        renderCurriculum();
+        updateProgress();
+        showWelcomeScreen();
+
+        // Initialize CodeMirror Editor
+        const codeEditor = CodeMirror.fromTextArea(document.getElementById('python-editor-textarea'), {
+            mode: 'python',
+            theme: 'dracula',
+            lineNumbers: true,
+            indentUnit: 4,
+            smartIndent: true,
+            tabSize: 4,
+            indentWithTabs: false,
+            matchBrackets: true,
+            autoCloseBrackets: true
+        });
+
+        // Initialize Pyodide on Page Load
+        initPyodide();
+
+        // Auto-focus Input
+        userInput.focus();
+
+        // --- TOAST NOTIFICATIONS ---
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            let iconClass = 'fa-circle-info';
+            if (type === 'success') iconClass = 'fa-circle-check';
+            if (type === 'error') iconClass = 'fa-circle-exclamation';
+            
+            toast.innerHTML = `<i class="fa-solid ${iconClass}"></i> ${message}`;
+            toastContainer.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'toastIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) reverse forwards';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // --- THEME MANAGEMENT ---
+        themeToggle.addEventListener('click', () => {
+            currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            localStorage.setItem('theme', currentTheme);
+            updateThemeIcon();
+            showToast(`Switched to ${currentTheme} mode!`, 'info');
+        });
+
+        function updateThemeIcon() {
+            const icon = themeToggle.querySelector('i');
+            if (currentTheme === 'light') {
+                icon.className = 'fa-solid fa-sun';
+            } else {
+                icon.className = 'fa-solid fa-moon';
+            }
+        }
+
+        // --- PANEL TOGGLES ---
+        toggleSidebar.addEventListener('click', () => {
+            document.body.classList.toggle('sidebar-collapsed');
+            toggleSidebar.classList.toggle('active', !document.body.classList.contains('sidebar-collapsed'));
+        });
+
+        toggleSandbox.addEventListener('click', () => {
+            document.body.classList.toggle('sandbox-collapsed');
+            toggleSandbox.classList.toggle('active', !document.body.classList.contains('sandbox-collapsed'));
+            // Refresh CodeMirror layout when sandbox expands
+            setTimeout(() => codeEditor.refresh(), 305);
+        });
+
+        // --- TAB SWITCHER ---
+        tabBtnPlayground.addEventListener('click', () => {
+            tabBtnPlayground.classList.add('active');
+            tabBtnVisualizer.classList.remove('active');
+            viewPlayground.classList.add('active');
+            viewVisualizer.classList.remove('active');
+            setTimeout(() => codeEditor.refresh(), 50);
+        });
+
+        tabBtnVisualizer.addEventListener('click', () => {
+            tabBtnVisualizer.classList.add('active');
+            tabBtnPlayground.classList.remove('active');
+            viewVisualizer.classList.add('active');
+            viewPlayground.classList.remove('active');
+            renderActiveVisualizer();
+        });
+
+        // --- SPEECH TOOLS ---
+        
+        // Text-to-Speech (Speaker)
+        function speakMessage(text, btnElement) {
+            if (window.speechSynthesis) {
+                // If speaking is active, stop it
+                if (isSpeaking) {
+                    window.speechSynthesis.cancel();
+                    isSpeaking = false;
+                    btnElement.classList.remove('playing');
+                    btnElement.querySelector('i').className = 'fa-solid fa-volume-high';
+                    if (activeSpeakerBtn === btnElement) return;
+                }
+
+                // Strip markdown styling, equations, and code blocks for clearer reading
+                let cleanText = text
+                    .replace(/```[\s\S]*?```/g, '[Code snippet skipped. Use the sandbox on the right to run it.]')
+                    .replace(/`([^`]+)`/g, '$1')
+                    .replace(/[*#_\\-]/g, '')
+                    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
+
+                currentUtterance = new SpeechSynthesisUtterance(cleanText);
+                currentUtterance.rate = 1.05;
+                
+                currentUtterance.onstart = () => {
+                    isSpeaking = true;
+                    activeSpeakerBtn = btnElement;
+                    btnElement.classList.add('playing');
+                    btnElement.querySelector('i').className = 'fa-solid fa-stop';
+                };
+
+                currentUtterance.onend = () => {
+                    isSpeaking = false;
+                    btnElement.classList.remove('playing');
+                    btnElement.querySelector('i').className = 'fa-solid fa-volume-high';
+                };
+
+                currentUtterance.onerror = () => {
+                    isSpeaking = false;
+                    btnElement.classList.remove('playing');
+                    btnElement.querySelector('i').className = 'fa-solid fa-volume-high';
+                };
+
+                window.speechSynthesis.speak(currentUtterance);
+            } else {
+                showToast("Speech synthesis not supported in this browser.", "error");
+            }
+        }
+
+        // Speech-to-Text (Microphone)
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (SpeechRecognition) {
+            const recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.lang = 'en-US';
+
+            recognition.onstart = () => {
+                voiceInputBtn.classList.add('active-record');
+                showToast("Listening...", "info");
+            };
+
+            recognition.onend = () => {
+                voiceInputBtn.classList.remove('active-record');
+            };
+
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                userInput.value = (userInput.value + ' ' + transcript).trim();
+                userInput.dispatchEvent(new Event('input'));
+            };
+
+            recognition.onerror = (e) => {
+                showToast("Speech recognition error: " + e.error, "error");
+                voiceInputBtn.classList.remove('active-record');
+            };
+
+            voiceInputBtn.addEventListener('click', () => {
+                if (voiceInputBtn.classList.contains('active-record')) {
+                    recognition.stop();
+                } else {
+                    recognition.start();
+                }
+            });
+        } else {
+            voiceInputBtn.style.display = 'none';
+        }
+
+        // --- PYODIDE (PYTHON COMPILER IN BROWSER) ---
+        async function initPyodide() {
+            if (pyodideInstance || isPyodideLoading) return;
+            isPyodideLoading = true;
+            appendToConsole("Loading Pyodide runtime (Python environment) in your browser...\n", "info");
+            try {
+                pyodideInstance = await loadPyodide({
+                    indexURL: "https://cdn.jsdelivr.net/pyodide/v0.23.4/full/"
+                });
+                appendToConsole("Python environment initialized! Ready to run scripts.\n", "success");
+                runCodeBtn.disabled = false;
+            } catch (err) {
+                appendToConsole(`Failed to load Python: ${err.message}\n`, "stderr");
+                showToast("Pyodide loading failed.", "error");
+            } finally {
+                isPyodideLoading = false;
+            }
+        }
+
+        function appendToConsole(text, type = '') {
+            const line = document.createElement('div');
+            line.className = `console-line ${type}`;
+            line.textContent = text;
+            consoleOutput.appendChild(line);
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        }
+
+        clearConsoleBtn.addEventListener('click', () => {
+            consoleOutput.innerHTML = '';
+            showToast("Console cleared.", "info");
+        });
+
+        runCodeBtn.addEventListener('click', async () => {
+            if (!pyodideInstance) {
+                showToast("Python engine is still loading...", "error");
+                return;
+            }
+            
+            const code = codeEditor.getValue();
+            appendToConsole(">>> Running code...\n", "info");
+            
+            // Redirect standard output to our virtual console
+            pyodideInstance.setStdout({
+                write: (text) => {
+                    appendToConsole(text);
+                    return text.length;
+                }
+            });
+
+            pyodideInstance.setStderr({
+                write: (text) => {
+                    appendToConsole(text, 'stderr');
+                    return text.length;
+                }
+            });
+
+            try {
+                const result = await pyodideInstance.runPythonAsync(code);
+                if (result !== undefined) {
+                    appendToConsole(`Result: ${result}\n`, "success");
+                }
+            } catch (err) {
+                appendToConsole(`${err.message}\n`, "stderr");
+            }
+        });
+
+        function openSandboxWithCode(code) {
+            codeEditor.setValue(code);
+            // Open panel if collapsed
+            if (document.body.classList.contains('sandbox-collapsed')) {
+                toggleSandbox.click();
+            }
+            // Switch to playground tab
+            tabBtnPlayground.click();
+            showToast("Copied script to Sandbox!", "success");
+        }
+
+        // --- CURRICULUM TRACKING ---
+        function renderCurriculum() {
+            curriculumListEl.innerHTML = '';
+            dsaCurriculum.forEach(cat => {
+                const catDiv = document.createElement('div');
+                catDiv.className = 'curriculum-category';
+                
+                catDiv.innerHTML = `
+                    <div class="category-header">
+                        <span class="category-title"><i class="${cat.icon}"></i> ${cat.category}</span>
+                        <i class="fa-solid fa-chevron-down category-icon-chevron"></i>
+                    </div>
+                    <div class="category-body"></div>
+                `;
+                
+                const body = catDiv.querySelector('.category-body');
+                cat.subtopics.forEach(sub => {
+                    const item = document.createElement('div');
+                    item.className = 'subtopic-item';
+                    
+                    const isChecked = completedSubtopics.includes(sub.id);
+                    
+                    item.innerHTML = `
+                        <div class="subtopic-left">
+                            <input type="checkbox" class="subtopic-checkbox" id="chk-${sub.id}" ${isChecked ? 'checked' : ''}>
+                            <span class="subtopic-label">${sub.name}</span>
+                        </div>
+                        <button class="subtopic-learn-btn" id="btn-learn-${sub.id}">
+                            Learn <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    `;
+                    
+                    // Bind learn button click
+                    item.querySelector('.subtopic-learn-btn').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        startLearningTopic(sub);
+                    });
+                    
+                    // Bind checkbox toggle click
+                    const checkbox = item.querySelector('.subtopic-checkbox');
+                    checkbox.addEventListener('change', (e) => {
+                        e.stopPropagation();
+                        toggleTopicCompletion(sub.id, checkbox.checked);
+                    });
+
+                    // Make label/wrapper click trigger checkbox toggle
+                    item.querySelector('.subtopic-left').addEventListener('click', (e) => {
+                        if (e.target !== checkbox) {
+                            checkbox.checked = !checkbox.checked;
+                            checkbox.dispatchEvent(new Event('change'));
+                        }
+                    });
+                    
+                    body.appendChild(item);
+                });
+                
+                // Toggle expand/collapse category
+                catDiv.querySelector('.category-header').addEventListener('click', () => {
+                    const isOpen = catDiv.classList.contains('open');
+                    // Close other opened categories
+                    document.querySelectorAll('.curriculum-category').forEach(el => el.classList.remove('open'));
+                    if (!isOpen) {
+                        catDiv.classList.add('open');
+                    }
+                });
+                
+                curriculumListEl.appendChild(catDiv);
+            });
+        }
+
+        function toggleTopicCompletion(id, isCompleted) {
+            if (isCompleted) {
+                if (!completedSubtopics.includes(id)) {
+                    completedSubtopics.push(id);
+                    // Confetti!
+                    confetti({
+                        particleCount: 80,
+                        spread: 60,
+                        origin: { y: 0.85 }
+                    });
+                    showToast("Topic checked off! Keep it up!", "success");
+                }
+            } else {
+                completedSubtopics = completedSubtopics.filter(item => item !== id);
+                showToast("Topic unmarked.", "info");
+            }
+            
+            localStorage.setItem('completedSubtopics', JSON.stringify(completedSubtopics));
+            updateProgress();
+        }
+
+        function updateProgress() {
+            let totalSubtopics = 0;
+            dsaCurriculum.forEach(cat => totalSubtopics += cat.subtopics.length);
+            
+            const completionPercent = totalSubtopics > 0 
+                ? Math.round((completedSubtopics.length / totalSubtopics) * 100) 
+                : 0;
+            
+            progressFill.style.width = `${completionPercent}%`;
+            progressText.textContent = `${completionPercent}%`;
+        }
+
+        function startLearningTopic(subtopic) {
+            activeTopicText.textContent = subtopic.name;
+            userInput.value = subtopic.prompt;
+            userInput.dispatchEvent(new Event('input'));
+            sendMessage();
+        }
+
+        // --- CHAT SYSTEM ---
+        function showWelcomeScreen() {
+            chatMessages.innerHTML = `
+                <div class="welcome-container">
+                    <div class="welcome-icon"><i class="fa-solid fa-rocket"></i></div>
+                    <h2>Start Your Python DSA Journey</h2>
+                    <p>Welcome! I'm your interactive AI tutor. Ask me details on arrays, stacks, trees, sorting algorithms, and more. Write your scripts, test them in the sandbox, and trace them using our interactive visualizer.</p>
+                    
+                    <div class="welcome-suggestions">
+                        <div class="suggestion-card" onclick="triggerSuggestion('How does a Stack differ from a Queue?')">
+                            <h4><i class="fa-solid fa-layer-group" style="color: var(--color-primary);"></i> Stack vs Queue</h4>
+                            <p>Learn the basics of LIFO and FIFO operations.</p>
+                        </div>
+                        <div class="suggestion-card" onclick="triggerSuggestion('Write dynamic programming code for coin change.')">
+                            <h4><i class="fa-solid fa-puzzle-piece" style="color: var(--color-secondary);"></i> Dynamic Programming</h4>
+                            <p>Understand recursive memoization in Python.</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function triggerSuggestion(text) {
+            userInput.value = text;
+            userInput.dispatchEvent(new Event('input'));
+            sendMessage();
+        }
+
+        function addMessageBubble(text, isUser) {
+            // Remove welcome screen if it exists
+            const welcome = chatMessages.querySelector('.welcome-container');
+            if (welcome) welcome.remove();
+
+            const bubbleWrapper = document.createElement('div');
+            bubbleWrapper.className = `message-bubble-wrapper ${isUser ? 'user' : 'assistant'}`;
+
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar';
+            avatar.innerHTML = isUser ? '<i class="fa-solid fa-user"></i>' : '<i class="fa-solid fa-brain"></i>';
+            bubbleWrapper.appendChild(avatar);
+
+            const bubble = document.createElement('div');
+            bubble.className = 'message-bubble';
+            
+            if (isUser) {
+                bubble.textContent = text;
+            } else {
+                // Parse markdown for assistant messages
+                bubble.innerHTML = marked.parse(text);
+                
+                // Add TTS controls for assistant replies
+                const controls = document.createElement('div');
+                controls.className = 'message-speech-controls';
+                controls.innerHTML = `
+                    <button class="speech-btn" title="Speak Message"><i class="fa-solid fa-volume-high"></i></button>
+                `;
+                controls.querySelector('.speech-btn').addEventListener('click', (e) => {
+                    speakMessage(text, e.currentTarget);
+                });
+                bubble.appendChild(controls);
+            }
+            
+            bubbleWrapper.appendChild(bubble);
+            chatMessages.appendChild(bubbleWrapper);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            if (!isUser) {
+                // Decorate python blocks
+                decorateCodeBlocks(bubbleWrapper);
+            }
+        }
+
+        function showLoadingIndicator() {
+            const bubbleWrapper = document.createElement('div');
+            bubbleWrapper.className = 'message-bubble-wrapper assistant';
+            bubbleWrapper.id = 'chat-loading-indicator';
+
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar';
+            avatar.innerHTML = '<i class="fa-solid fa-brain"></i>';
+            bubbleWrapper.appendChild(avatar);
+
+            const bubble = document.createElement('div');
+            bubble.className = 'message-bubble loading-bubble';
+            bubble.innerHTML = `
+                <div class="loading-dot"></div>
+                <div class="loading-dot"></div>
+                <div class="loading-dot"></div>
+            `;
+            
+            bubbleWrapper.appendChild(bubble);
+            chatMessages.appendChild(bubbleWrapper);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function hideLoadingIndicator() {
+            const indicator = document.getElementById('chat-loading-indicator');
+            if (indicator) indicator.remove();
+        }
+
+        async function sendMessage() {
+            const text = userInput.value.trim();
+            if (!text) return;
+
+            // Stop speech if speaking
+            if (isSpeaking) {
+                window.speechSynthesis.cancel();
+                isSpeaking = false;
+            }
+
+            addMessageBubble(text, true);
+            userInput.value = '';
+            userInput.style.height = '38px'; // Reset height
+            sendBtn.disabled = true;
+            
+            showLoadingIndicator();
+
+            try {
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: text })
+                });
+
+                const data = await response.json();
+                hideLoadingIndicator();
+
+                if (data.response) {
+                    addMessageBubble(data.response, false);
+                    messagesHistory.push({ user: text, assistant: data.response });
+                } else {
+                    addMessageBubble(data.error || 'Oops, no response returned.', false);
+                }
+            } catch (error) {
+                hideLoadingIndicator();
+                addMessageBubble('Network error. Unable to contact the Flask server.', false);
+                showToast("Failed to send message.", "error");
+            } finally {
+                sendBtn.disabled = false;
+                userInput.focus();
+            }
+        }
+
+        // Decorate Code Snippets with Copy / Run Actions
+        function decorateCodeBlocks(container) {
+            const codeBlocks = container.querySelectorAll('pre code');
+            codeBlocks.forEach(codeEl => {
+                if (codeEl.parentElement.classList.contains('code-decorated')) return;
+                
+                const pre = codeEl.parentElement;
+                pre.classList.add('code-decorated');
+                
+                const langClass = [...codeEl.classList].find(cls => cls.startsWith('language-'));
+                const lang = langClass ? langClass.replace('language-', '') : 'code';
+                
+                const wrapper = document.createElement('div');
+                wrapper.className = 'code-wrapper';
+                
+                const header = document.createElement('div');
+                header.className = 'code-header';
+                header.innerHTML = `
+                    <span class="code-lang"><i class="fa-brands fa-python"></i> ${lang}</span>
+                    <div class="code-actions">
+                        <button class="code-action-btn copy-btn"><i class="fa-regular fa-copy"></i> Copy</button>
+                        ${lang === 'python' || lang === 'py' || lang === 'code' ? `
+                            <button class="code-action-btn run-btn"><i class="fa-solid fa-terminal"></i> Run Sandbox</button>
+                        ` : ''}
+                    </div>
+                `;
+                
+                pre.parentNode.insertBefore(wrapper, pre);
+                wrapper.appendChild(header);
+                wrapper.appendChild(pre);
+                
+                const codeText = codeEl.textContent;
+                header.querySelector('.copy-btn').addEventListener('click', () => {
+                    navigator.clipboard.writeText(codeText);
+                    showToast("Code copied to clipboard!", "success");
+                });
+                
+                const runInSandbox = header.querySelector('.run-btn');
+                if (runInSandbox) {
+                    runInSandbox.addEventListener('click', () => {
+                        openSandboxWithCode(codeText);
+                    });
+                }
+            });
+        }
+
+        // Auto-sizing dynamic textarea
+        userInput.addEventListener('input', () => {
+            userInput.style.height = 'auto';
+            userInput.style.height = Math.min(userInput.scrollHeight, 120) + 'px';
+            sendBtn.disabled = !userInput.value.trim();
+        });
+
+        userInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        sendBtn.addEventListener('click', sendMessage);
+
+        // Reset conversation
+        resetSessionBtn.addEventListener('click', async () => {
+            if (confirm("Are you sure you want to clear this conversation history? This resets your session context.")) {
+                try {
+                    const response = await fetch('/reset', { method: 'POST' });
+                    const data = await response.json();
+                    if (data.status === 'success') {
+                        messagesHistory = [];
+                        activeTopicText.textContent = "General Mentorship";
+                        showWelcomeScreen();
+                        showToast("Session reset successfully.", "success");
+                    }
+                } catch (err) {
+                    showToast("Failed to reset session.", "error");
+                }
+            }
+        });
+
+        // Export markdown transcript
+        exportChatBtn.addEventListener('click', () => {
+            if (messagesHistory.length === 0) {
+                showToast("No chat history to export.", "error");
+                return;
+            }
+            
+            let doc = "# DSA Assistant Conversation Transcript\n\n";
+            messagesHistory.forEach((msg, idx) => {
+                doc += `### Question ${idx + 1}\n**Student:** ${msg.user}\n\n`;
+                doc += `**Tutor:**\n${msg.assistant}\n\n---\n\n`;
+            });
+            
+            const blob = new Blob([doc], { type: 'text/markdown' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `dsa_learning_session_${Date.now()}.md`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast("Conversation exported!", "success");
+        });
+
+        // --- DATA STRUCTURE SIMULATOR IMPLEMENTATIONS ---
+        let arrayData = [12, 45, 8, 23, 76];
+        let stackData = ['34', '12', '90'];
+        let queueData = ['A', 'B', 'C'];
+        let linkedListData = ['Node A', 'Node B'];
+
+        visTypeSelect.addEventListener('change', () => {
+            // Hide all panels
+            document.querySelectorAll('.visualizer-control-group').forEach(el => el.classList.remove('active'));
+            // Display active panel
+            const structure = visTypeSelect.value;
+            document.getElementById(`ctrls-${structure}`).classList.add('active');
+            renderActiveVisualizer();
+        });
+
+        function renderActiveVisualizer() {
+            const structure = visTypeSelect.value;
+            visDisplay.innerHTML = '';
+            
+            if (structure === 'array') {
+                const container = document.createElement('div');
+                container.className = 'array-vis-container';
+                
+                arrayData.forEach((val, idx) => {
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'array-element-box';
+                    
+                    const box = document.createElement('div');
+                    box.className = 'array-element';
+                    box.id = `arr-cell-${idx}`;
+                    box.textContent = val;
+                    
+                    const label = document.createElement('span');
+                    label.className = 'array-index';
+                    label.textContent = `idx ${idx}`;
+                    
+                    wrapper.appendChild(box);
+                    wrapper.appendChild(label);
+                    container.appendChild(wrapper);
+                });
+                visDisplay.appendChild(container);
+            } 
+            else if (structure === 'stack') {
+                const container = document.createElement('div');
+                container.className = 'stack-vis-container';
+                
+                stackData.forEach((val, idx) => {
+                    const block = document.createElement('div');
+                    block.className = 'stack-element';
+                    block.textContent = val;
+                    
+                    if (idx === stackData.length - 1) {
+                        const ptr = document.createElement('div');
+                        ptr.className = 'stack-top-pointer';
+                        ptr.innerHTML = `<span>TOP</span> <i class="fa-solid fa-arrow-right"></i>`;
+                        block.appendChild(ptr);
+                    }
+                    container.appendChild(block);
+                });
+                
+                if (stackData.length === 0) {
+                    container.style.justifyContent = 'center';
+                    container.innerHTML = '<span style="color:var(--text-muted);font-size:0.8rem;">Empty Stack</span>';
+                }
+                visDisplay.appendChild(container);
+            } 
+            else if (structure === 'queue') {
+                const container = document.createElement('div');
+                container.className = 'queue-vis-container';
+                
+                queueData.forEach((val, idx) => {
+                    const block = document.createElement('div');
+                    block.className = 'queue-element';
+                    block.textContent = val;
+                    
+                    let pText = '';
+                    if (idx === 0) pText = 'Front (Head)';
+                    if (idx === queueData.length - 1 && queueData.length > 1) pText = 'Rear (Tail)';
+                    else if (idx === queueData.length - 1) pText = 'Front & Rear';
+                    
+                    if (pText) {
+                        const ptr = document.createElement('div');
+                        ptr.className = 'queue-pointer';
+                        ptr.innerHTML = `<i class="fa-solid fa-arrow-up"></i><span>${pText}</span>`;
+                        block.appendChild(ptr);
+                    }
+                    
+                    container.appendChild(block);
+                });
+                
+                if (queueData.length === 0) {
+                    container.innerHTML = '<span style="color:var(--text-muted);font-size:0.8rem;margin:auto;">Empty Queue</span>';
+                }
+                visDisplay.appendChild(container);
+            } 
+            else if (structure === 'linkedlist') {
+                const container = document.createElement('div');
+                container.className = 'linkedlist-vis-container';
+                
+                linkedListData.forEach((val, idx) => {
+                    const node = document.createElement('div');
+                    node.className = 'll-node';
+                    
+                    const label = idx === 0 ? 'Head' : (idx === linkedListData.length - 1 ? 'Tail' : `next`);
+                    node.innerHTML = `
+                        <div class="ll-val">${val}</div>
+                        <div class="ll-next">${label}</div>
+                    `;
+                    
+                    container.appendChild(node);
+                    
+                    // Add arrow pointing to next
+                    const arrow = document.createElement('div');
+                    arrow.className = 'll-arrow';
+                    arrow.innerHTML = `<i class="fa-solid fa-arrow-right-long"></i>`;
+                    container.appendChild(arrow);
+                });
+                
+                const nil = document.createElement('div');
+                nil.className = 'll-null';
+                nil.textContent = 'NULL';
+                container.appendChild(nil);
+                
+                visDisplay.appendChild(container);
+            }
+        }
+
+        // Action controls mappings
+        
+        // --- ARRAY ACTIONS ---
+        document.getElementById('btn-arr-append').addEventListener('click', () => {
+            const valInput = document.getElementById('arr-val');
+            const val = parseInt(valInput.value);
+            if (isNaN(val)) return showToast("Enter a numeric value.", "error");
+            arrayData.push(val);
+            valInput.value = '';
+            renderActiveVisualizer();
+            showToast(`Appended ${val} to list.`, "success");
+        });
+        
+        document.getElementById('btn-arr-insert').addEventListener('click', () => {
+            const valInput = document.getElementById('arr-val');
+            const idxInput = document.getElementById('arr-idx');
+            const val = parseInt(valInput.value);
+            const idx = parseInt(idxInput.value);
+            
+            if (isNaN(val) || isNaN(idx)) return showToast("Enter val and index.", "error");
+            if (idx < 0 || idx > arrayData.length) return showToast("Index out of bounds.", "error");
+            
+            arrayData.splice(idx, 0, val);
+            valInput.value = '';
+            idxInput.value = '';
+            renderActiveVisualizer();
+            showToast(`Inserted ${val} at index ${idx}.`, "success");
+        });
+
+        document.getElementById('btn-arr-delete').addEventListener('click', () => {
+            const idxInput = document.getElementById('arr-idx');
+            const idx = parseInt(idxInput.value);
+            
+            if (isNaN(idx)) return showToast("Specify index to delete.", "error");
+            if (idx < 0 || idx >= arrayData.length) return showToast("Index out of bounds.", "error");
+            
+            const removed = arrayData.splice(idx, 1);
+            idxInput.value = '';
+            renderActiveVisualizer();
+            showToast(`Deleted ${removed[0]} from index ${idx}.`, "success");
+        });
+
+        document.getElementById('btn-arr-search').addEventListener('click', () => {
+            const valInput = document.getElementById('arr-val');
+            const val = parseInt(valInput.value);
+            if (isNaN(val)) return showToast("Enter search value.", "error");
+            
+            const matchIndex = arrayData.indexOf(val);
+            renderActiveVisualizer(); // Reset highlights
+            
+            if (matchIndex !== -1) {
+                const cell = document.getElementById(`arr-cell-${matchIndex}`);
+                if (cell) {
+                    cell.classList.add('highlight-search');
+                    showToast(`Found ${val} at index ${matchIndex}!`, "success");
+                }
+            } else {
+                showToast(`Value ${val} not found in array.`, "error");
+            }
+        });
+
+        // --- STACK ACTIONS ---
+        document.getElementById('btn-stack-push').addEventListener('click', () => {
+            const valInput = document.getElementById('stack-val');
+            const val = valInput.value.trim();
+            if (!val) return showToast("Enter a value to push.", "error");
+            
+            stackData.push(val);
+            valInput.value = '';
+            renderActiveVisualizer();
+            showToast(`Pushed "${val}" to stack.`, "success");
+        });
+
+        document.getElementById('btn-stack-pop').addEventListener('click', () => {
+            if (stackData.length === 0) return showToast("Stack Underflow! No items to pop.", "error");
+            
+            // Animation handling
+            const containers = visDisplay.querySelectorAll('.stack-element');
+            const topElement = containers[containers.length - 1];
+            if (topElement) {
+                topElement.classList.add('popping');
+                setTimeout(() => {
+                    const popped = stackData.pop();
+                    renderActiveVisualizer();
+                    showToast(`Popped "${popped}" from stack.`, "success");
+                }, 300);
+            }
+        });
+
+        document.getElementById('btn-stack-clear').addEventListener('click', () => {
+            stackData = [];
+            renderActiveVisualizer();
+            showToast("Stack cleared.", "info");
+        });
+
+        // --- QUEUE ACTIONS ---
+        document.getElementById('btn-queue-enqueue').addEventListener('click', () => {
+            const valInput = document.getElementById('queue-val');
+            const val = valInput.value.trim();
+            if (!val) return showToast("Enter enqueue value.", "error");
+            
+            queueData.push(val);
+            valInput.value = '';
+            renderActiveVisualizer();
+            showToast(`Enqueued "${val}".`, "success");
+        });
+
+        document.getElementById('btn-queue-dequeue').addEventListener('click', () => {
+            if (queueData.length === 0) return showToast("Queue Underflow! Empty queue.", "error");
+            
+            const firstCell = visDisplay.querySelector('.queue-element');
+            if (firstCell) {
+                firstCell.classList.add('dequeuing');
+                setTimeout(() => {
+                    const dequeued = queueData.shift();
+                    renderActiveVisualizer();
+                    showToast(`Dequeued "${dequeued}" from head.`, "success");
+                }, 300);
+            }
+        });
+
+        document.getElementById('btn-queue-clear').addEventListener('click', () => {
+            queueData = [];
+            renderActiveVisualizer();
+            showToast("Queue cleared.", "info");
+        });
+
+        // --- LINKED LIST ACTIONS ---
+        document.getElementById('btn-ll-head').addEventListener('click', () => {
+            const valInput = document.getElementById('ll-val');
+            const val = valInput.value.trim();
+            if (!val) return showToast("Enter value to insert.", "error");
+            
+            linkedListData.unshift(val);
+            valInput.value = '';
+            renderActiveVisualizer();
+            showToast(`Inserted "${val}" at Head.`, "success");
+        });
+
+        document.getElementById('btn-ll-tail').addEventListener('click', () => {
+            const valInput = document.getElementById('ll-val');
+            const val = valInput.value.trim();
+            if (!val) return showToast("Enter value to insert.", "error");
+            
+            linkedListData.push(val);
+            valInput.value = '';
+            renderActiveVisualizer();
+            showToast(`Inserted "${val}" at Tail.`, "success");
+        });
+
+        document.getElementById('btn-ll-delhead').addEventListener('click', () => {
+            if (linkedListData.length === 0) return showToast("Linked list is already empty.", "error");
+            
+            const removed = linkedListData.shift();
+            renderActiveVisualizer();
+            showToast(`Deleted head node containing "${removed}".`, "success");
+        });
+
+        document.getElementById('btn-ll-clear').addEventListener('click', () => {
+            linkedListData = [];
+            renderActiveVisualizer();
+            showToast("Linked list cleared.", "info");
+        });
+
+    </script>
+</body>
+</html>
