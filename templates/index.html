@@ -1,33 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="An interactive DSA Learning Assistant and Python sandbox. Learn Data Structures and Algorithms with code execution and visualizations.">
-    <title>DSA Learning Assistant & Playground</title>
-    
+    <meta name="description"
+        content="An interactive DSA Learning Assistant and Python sandbox. Learn Data Structures and Algorithms with code execution and visualizations.">
+    <title>DSA Assistant & Playground</title>
+
     <!-- Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <!-- CodeMirror Editor Styling & Theme -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/dracula.min.css">
-    
+
     <!-- Syntax Highlighting (Highlight.js) -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/tokyo-night-dark.min.css">
-    
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/tokyo-night-dark.min.css">
+
     <style>
         :root {
             --font-main: 'Inter', -apple-system, sans-serif;
             --font-code: 'JetBrains Mono', monospace;
-            
+
             /* Theme variables (Dark Mode default) */
-            --bg-gradient: radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 40%), 
-                           radial-gradient(circle at 90% 80%, rgba(76, 201, 240, 0.15) 0%, transparent 40%), 
-                           #090d16;
+            --bg-gradient: radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(76, 201, 240, 0.15) 0%, transparent 40%),
+                #090d16;
             --bg-panel: rgba(17, 24, 39, 0.7);
             --bg-panel-solid: #0d121f;
             --bg-input: rgba(3, 7, 18, 0.6);
@@ -35,7 +40,7 @@
             --text-main: #f3f4f6;
             --text-muted: #9ca3af;
             --text-inverse: #0f172a;
-            
+
             --color-primary: #6366f1;
             --color-primary-dark: #4f46e5;
             --color-primary-glow: rgba(99, 102, 241, 0.3);
@@ -43,19 +48,19 @@
             --color-secondary-glow: rgba(6, 182, 212, 0.25);
             --color-success: #10b981;
             --color-danger: #ef4444;
-            
+
             --shadow-premium: 0 10px 30px rgba(0, 0, 0, 0.35);
             --radius-main: 16px;
             --radius-btn: 999px;
-            
+
             --sidebar-width: 290px;
             --sandbox-width: 480px;
         }
 
         [data-theme="light"] {
-            --bg-gradient: radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.06) 0%, transparent 40%), 
-                           radial-gradient(circle at 90% 80%, rgba(76, 201, 240, 0.06) 0%, transparent 40%), 
-                           #f1f5f9;
+            --bg-gradient: radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.06) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(76, 201, 240, 0.06) 0%, transparent 40%),
+                #f1f5f9;
             --bg-panel: rgba(255, 255, 255, 0.75);
             --bg-panel-solid: #ffffff;
             --bg-input: rgba(241, 245, 249, 0.9);
@@ -63,7 +68,7 @@
             --text-main: #1f2937;
             --text-muted: #6b7280;
             --text-inverse: #ffffff;
-            
+
             --color-primary: #4f46e5;
             --color-primary-dark: #3730a3;
             --color-primary-glow: rgba(79, 70, 229, 0.15);
@@ -86,7 +91,7 @@
             display: grid;
             grid-template-rows: 64px 1fr;
             grid-template-columns: var(--sidebar-width) 1fr var(--sandbox-width);
-            grid-template-areas: 
+            grid-template-areas:
                 "header header header"
                 "sidebar chat sandbox";
             overflow: hidden;
@@ -110,13 +115,16 @@
             width: 6px;
             height: 6px;
         }
+
         ::-webkit-scrollbar-track {
             background: transparent;
         }
+
         ::-webkit-scrollbar-thumb {
             background: rgba(156, 163, 175, 0.25);
             border-radius: 4px;
         }
+
         ::-webkit-scrollbar-thumb:hover {
             background: rgba(156, 163, 175, 0.45);
         }
@@ -382,7 +390,7 @@
             transition: color 0.2s ease;
         }
 
-        .subtopic-checkbox:checked + .subtopic-label {
+        .subtopic-checkbox:checked+.subtopic-label {
             color: var(--text-muted);
             text-decoration: line-through;
         }
@@ -542,24 +550,44 @@
         }
 
         /* Markdown elements inside message bubble */
-        .message-bubble h1, .message-bubble h2, .message-bubble h3 {
+        .message-bubble h1,
+        .message-bubble h2,
+        .message-bubble h3 {
             margin-top: 0.8rem;
             margin-bottom: 0.4rem;
             font-weight: 700;
         }
-        .message-bubble h1 { font-size: 1.15rem; }
-        .message-bubble h2 { font-size: 1.05rem; }
-        .message-bubble h3 { font-size: 0.95rem; }
-        .message-bubble p { margin-bottom: 0.75rem; }
-        .message-bubble p:last-child { margin-bottom: 0; }
-        .message-bubble ul, .message-bubble ol {
+
+        .message-bubble h1 {
+            font-size: 1.15rem;
+        }
+
+        .message-bubble h2 {
+            font-size: 1.05rem;
+        }
+
+        .message-bubble h3 {
+            font-size: 0.95rem;
+        }
+
+        .message-bubble p {
+            margin-bottom: 0.75rem;
+        }
+
+        .message-bubble p:last-child {
+            margin-bottom: 0;
+        }
+
+        .message-bubble ul,
+        .message-bubble ol {
             margin-left: 1.25rem;
             margin-bottom: 0.75rem;
         }
+
         .message-bubble li {
             margin-bottom: 0.25rem;
         }
-        
+
         /* Code blocks design inside markdown */
         .code-wrapper {
             margin: 0.9rem 0;
@@ -568,7 +596,7 @@
             border: 1px solid var(--border-panel);
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
-        
+
         .code-header {
             background: rgba(3, 7, 18, 0.8);
             padding: 0.5rem 0.85rem;
@@ -579,7 +607,7 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
             font-family: var(--font-code);
         }
-        
+
         .code-lang {
             display: flex;
             align-items: center;
@@ -587,17 +615,18 @@
             color: var(--text-muted);
             font-weight: 500;
         }
-        
+
         .code-lang i {
-            color: #3776ab; /* Python blue */
+            color: #3776ab;
+            /* Python blue */
         }
-        
+
         .code-actions {
             display: flex;
             align-items: center;
             gap: 0.5rem;
         }
-        
+
         .code-action-btn {
             background: rgba(156, 163, 175, 0.15);
             border: none;
@@ -612,19 +641,19 @@
             gap: 4px;
             transition: all 0.2s ease;
         }
-        
+
         .code-action-btn:hover {
             background: var(--color-primary);
             color: var(--text-inverse);
         }
-        
+
         .message-bubble pre {
             margin: 0;
             padding: 0.85rem;
             overflow-x: auto;
             background: #0d1117 !important;
         }
-        
+
         .message-bubble code {
             font-family: var(--font-code);
             font-size: 0.8rem;
@@ -632,7 +661,7 @@
             padding: 2px 4px;
             border-radius: 4px;
         }
-        
+
         .code-wrapper pre code {
             padding: 0;
             background: transparent;
@@ -697,8 +726,13 @@
             animation: loadingDot 1.4s infinite both;
         }
 
-        .loading-dot:nth-child(2) { animation-delay: 0.2s; }
-        .loading-dot:nth-child(3) { animation-delay: 0.4s; }
+        .loading-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .loading-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
 
         /* Welcome Screen inside empty chat */
         .welcome-container {
@@ -1054,7 +1088,7 @@
         .console-line.stderr {
             color: var(--color-danger);
         }
-        
+
         .console-line.success {
             color: var(--color-success);
         }
@@ -1165,7 +1199,7 @@
         }
 
         /* DATA STRUCTURE SPECIFIC STYLES */
-        
+
         /* Stack visual design */
         .stack-vis-container {
             display: flex;
@@ -1391,7 +1425,7 @@
             color: var(--text-main);
             padding: 0.75rem 1.25rem;
             border-radius: 8px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
             display: flex;
             align-items: center;
             gap: 8px;
@@ -1402,84 +1436,161 @@
             border-left-width: 4px;
         }
 
-        .toast.success { border-left-color: var(--color-success); }
-        .toast.error { border-left-color: var(--color-danger); }
-        .toast.info { border-left-color: var(--color-secondary); }
+        .toast.success {
+            border-left-color: var(--color-success);
+        }
+
+        .toast.error {
+            border-left-color: var(--color-danger);
+        }
+
+        .toast.info {
+            border-left-color: var(--color-secondary);
+        }
 
         /* ANIMATIONS */
         @keyframes bubbleFadeIn {
-            from { opacity: 0; transform: translateY(8px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         @keyframes toastIn {
-            from { transform: translateY(30px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
 
         @keyframes loadingDot {
-            0% { opacity: .2; }
-            20% { opacity: 1; }
-            100% { opacity: .2; }
+            0% {
+                opacity: .2;
+            }
+
+            20% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: .2;
+            }
         }
 
         @keyframes pulseRecord {
-            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
-            70% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+            0% {
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+            }
+
+            70% {
+                box-shadow: 0 0 0 8px rgba(239, 68, 68, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+            }
         }
 
         @keyframes slideInDown {
-            from { transform: translateY(-30px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+            from {
+                transform: translateY(-30px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
 
         @keyframes slideOutUp {
-            to { transform: translateY(-40px); opacity: 0; }
+            to {
+                transform: translateY(-40px);
+                opacity: 0;
+            }
         }
 
         @keyframes slideInRight {
-            from { transform: translateX(30px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
+            from {
+                transform: translateX(30px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
         }
 
         @keyframes slideOutLeft {
-            to { transform: translateX(-40px); opacity: 0; }
+            to {
+                transform: translateX(-40px);
+                opacity: 0;
+            }
         }
 
         @keyframes arrowPulse {
-            0%, 100% { opacity: 0.7; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.15) translateX(3px); }
+
+            0%,
+            100% {
+                opacity: 0.7;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 1;
+                transform: scale(1.15) translateX(3px);
+            }
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
         }
 
         /* Responsive overrides */
         @media (max-width: 1024px) {
             body {
                 grid-template-columns: 1fr;
-                grid-template-areas: 
+                grid-template-areas:
                     "header"
                     "chat";
             }
-            aside, #sandbox-panel {
+
+            aside,
+            #sandbox-panel {
                 position: fixed;
                 top: 64px;
                 height: calc(100vh - 64px);
                 z-index: 99;
             }
+
             aside {
                 left: 0;
             }
+
             #sandbox-panel {
                 right: 0;
             }
         }
     </style>
 </head>
+
 <body>
 
     <!-- HEADER -->
@@ -1505,11 +1616,11 @@
                 </div>
                 <span id="progress-percentage">0%</span>
             </div>
-            
+
             <button id="theme-toggle" class="header-btn" title="Toggle Light/Dark Mode">
                 <i class="fa-solid fa-moon"></i>
             </button>
-            
+
             <button id="toggle-sandbox" class="header-btn active" title="Toggle Sandbox Panel">
                 <i class="fa-solid fa-code"></i>
             </button>
@@ -1522,7 +1633,7 @@
             <span>Learning Modules</span>
             <i class="fa-solid fa-road"></i>
         </div>
-        
+
         <div id="curriculum-list" class="curriculum-list">
             <!-- Rendered Dynamically via JS -->
         </div>
@@ -1544,14 +1655,16 @@
                 <i class="fa-regular fa-comments"></i> <span>General Mentorship</span>
             </div>
         </div>
-        
+
         <div id="chat-messages">
             <!-- Initialized with a welcome screen or chat records -->
         </div>
 
         <div id="input-container">
             <div class="input-bar-wrapper">
-                <textarea id="user-input" placeholder="Ask your tutor a question (e.g. 'How does binary search work?')..." rows="1"></textarea>
+                <textarea id="user-input"
+                    placeholder="Ask your tutor a question (e.g. 'How does binary search work?')..."
+                    rows="1"></textarea>
                 <button id="voice-input-btn" class="input-action-btn" title="Voice Input (Speech-to-Text)">
                     <i class="fa-solid fa-microphone"></i>
                 </button>
@@ -1587,7 +1700,7 @@
                         </button>
                     </div>
                 </div>
-                
+
                 <div class="editor-container">
                     <textarea id="python-editor-textarea"># Type or copy your Python code here
 def greet(name):
@@ -1628,26 +1741,34 @@ print("Returned:", res)
                     <!-- Array Controls -->
                     <div id="ctrls-array" class="visualizer-control-group active">
                         <input type="number" id="arr-val" class="visualizer-input" placeholder="Val">
-                        <button id="btn-arr-append" class="visualizer-btn"><i class="fa-solid fa-plus"></i> Append</button>
-                        <input type="number" id="arr-idx" class="visualizer-input" placeholder="Idx" style="width: 50px;">
+                        <button id="btn-arr-append" class="visualizer-btn"><i class="fa-solid fa-plus"></i>
+                            Append</button>
+                        <input type="number" id="arr-idx" class="visualizer-input" placeholder="Idx"
+                            style="width: 50px;">
                         <button id="btn-arr-insert" class="visualizer-btn secondary-vis-btn">Insert</button>
-                        <button id="btn-arr-delete" class="visualizer-btn secondary-vis-btn"><i class="fa-solid fa-trash-can"></i> Delete</button>
-                        <button id="btn-arr-search" class="visualizer-btn secondary-vis-btn"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
+                        <button id="btn-arr-delete" class="visualizer-btn secondary-vis-btn"><i
+                                class="fa-solid fa-trash-can"></i> Delete</button>
+                        <button id="btn-arr-search" class="visualizer-btn secondary-vis-btn"><i
+                                class="fa-solid fa-magnifying-glass"></i> Search</button>
                     </div>
 
                     <!-- Stack Controls -->
                     <div id="ctrls-stack" class="visualizer-control-group">
                         <input type="text" id="stack-val" class="visualizer-input" placeholder="Value">
-                        <button id="btn-stack-push" class="visualizer-btn"><i class="fa-solid fa-arrow-down-long"></i> Push</button>
-                        <button id="btn-stack-pop" class="visualizer-btn secondary-vis-btn"><i class="fa-solid fa-arrow-up-long"></i> Pop</button>
+                        <button id="btn-stack-push" class="visualizer-btn"><i class="fa-solid fa-arrow-down-long"></i>
+                            Push</button>
+                        <button id="btn-stack-pop" class="visualizer-btn secondary-vis-btn"><i
+                                class="fa-solid fa-arrow-up-long"></i> Pop</button>
                         <button id="btn-stack-clear" class="visualizer-btn secondary-vis-btn">Clear</button>
                     </div>
 
                     <!-- Queue Controls -->
                     <div id="ctrls-queue" class="visualizer-control-group">
                         <input type="text" id="queue-val" class="visualizer-input" placeholder="Value">
-                        <button id="btn-queue-enqueue" class="visualizer-btn"><i class="fa-solid fa-right-to-bracket"></i> Enqueue</button>
-                        <button id="btn-queue-dequeue" class="visualizer-btn secondary-vis-btn"><i class="fa-solid fa-right-from-bracket"></i> Dequeue</button>
+                        <button id="btn-queue-enqueue" class="visualizer-btn"><i
+                                class="fa-solid fa-right-to-bracket"></i> Enqueue</button>
+                        <button id="btn-queue-dequeue" class="visualizer-btn secondary-vis-btn"><i
+                                class="fa-solid fa-right-from-bracket"></i> Dequeue</button>
                         <button id="btn-queue-clear" class="visualizer-btn secondary-vis-btn">Clear</button>
                     </div>
 
@@ -1756,19 +1877,19 @@ print("Returned:", res)
         const activeTopicText = document.getElementById('active-topic-indicator').querySelector('span');
         const progressFill = document.getElementById('course-progress-fill');
         const progressText = document.getElementById('progress-percentage');
-        
+
         const tabBtnPlayground = document.getElementById('tab-btn-playground');
         const tabBtnVisualizer = document.getElementById('tab-btn-visualizer');
         const viewPlayground = document.getElementById('view-playground');
         const viewVisualizer = document.getElementById('view-visualizer');
-        
+
         const clearConsoleBtn = document.getElementById('clear-console-btn');
         const runCodeBtn = document.getElementById('run-code-btn');
         const consoleOutput = document.getElementById('console-output');
-        
+
         const visTypeSelect = document.getElementById('visualizer-type');
         const visDisplay = document.getElementById('visualizer-display');
-        
+
         const voiceInputBtn = document.getElementById('voice-input-btn');
         const toastContainer = document.getElementById('toast-container');
 
@@ -1802,14 +1923,14 @@ print("Returned:", res)
         function showToast(message, type = 'info') {
             const toast = document.createElement('div');
             toast.className = `toast ${type}`;
-            
+
             let iconClass = 'fa-circle-info';
             if (type === 'success') iconClass = 'fa-circle-check';
             if (type === 'error') iconClass = 'fa-circle-exclamation';
-            
+
             toast.innerHTML = `<i class="fa-solid ${iconClass}"></i> ${message}`;
             toastContainer.appendChild(toast);
-            
+
             setTimeout(() => {
                 toast.style.animation = 'toastIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) reverse forwards';
                 setTimeout(() => toast.remove(), 300);
@@ -1865,7 +1986,7 @@ print("Returned:", res)
         });
 
         // --- SPEECH TOOLS ---
-        
+
         // Text-to-Speech (Speaker)
         function speakMessage(text, btnElement) {
             if (window.speechSynthesis) {
@@ -1887,7 +2008,7 @@ print("Returned:", res)
 
                 currentUtterance = new SpeechSynthesisUtterance(cleanText);
                 currentUtterance.rate = 1.05;
-                
+
                 currentUtterance.onstart = () => {
                     isSpeaking = true;
                     activeSpeakerBtn = btnElement;
@@ -1989,10 +2110,10 @@ print("Returned:", res)
                 showToast("Python engine is still loading...", "error");
                 return;
             }
-            
+
             const code = codeEditor.getValue();
             appendToConsole(">>> Running code...\n", "info");
-            
+
             // Redirect standard output to our virtual console
             pyodideInstance.setStdout({
                 write: (text) => {
@@ -2035,7 +2156,7 @@ print("Returned:", res)
             dsaCurriculum.forEach(cat => {
                 const catDiv = document.createElement('div');
                 catDiv.className = 'curriculum-category';
-                
+
                 catDiv.innerHTML = `
                     <div class="category-header">
                         <span class="category-title"><i class="${cat.icon}"></i> ${cat.category}</span>
@@ -2043,14 +2164,14 @@ print("Returned:", res)
                     </div>
                     <div class="category-body"></div>
                 `;
-                
+
                 const body = catDiv.querySelector('.category-body');
                 cat.subtopics.forEach(sub => {
                     const item = document.createElement('div');
                     item.className = 'subtopic-item';
-                    
+
                     const isChecked = completedSubtopics.includes(sub.id);
-                    
+
                     item.innerHTML = `
                         <div class="subtopic-left">
                             <input type="checkbox" class="subtopic-checkbox" id="chk-${sub.id}" ${isChecked ? 'checked' : ''}>
@@ -2060,13 +2181,13 @@ print("Returned:", res)
                             Learn <i class="fa-solid fa-arrow-right"></i>
                         </button>
                     `;
-                    
+
                     // Bind learn button click
                     item.querySelector('.subtopic-learn-btn').addEventListener('click', (e) => {
                         e.stopPropagation();
                         startLearningTopic(sub);
                     });
-                    
+
                     // Bind checkbox toggle click
                     const checkbox = item.querySelector('.subtopic-checkbox');
                     checkbox.addEventListener('change', (e) => {
@@ -2081,10 +2202,10 @@ print("Returned:", res)
                             checkbox.dispatchEvent(new Event('change'));
                         }
                     });
-                    
+
                     body.appendChild(item);
                 });
-                
+
                 // Toggle expand/collapse category
                 catDiv.querySelector('.category-header').addEventListener('click', () => {
                     const isOpen = catDiv.classList.contains('open');
@@ -2094,7 +2215,7 @@ print("Returned:", res)
                         catDiv.classList.add('open');
                     }
                 });
-                
+
                 curriculumListEl.appendChild(catDiv);
             });
         }
@@ -2115,7 +2236,7 @@ print("Returned:", res)
                 completedSubtopics = completedSubtopics.filter(item => item !== id);
                 showToast("Topic unmarked.", "info");
             }
-            
+
             localStorage.setItem('completedSubtopics', JSON.stringify(completedSubtopics));
             updateProgress();
         }
@@ -2123,11 +2244,11 @@ print("Returned:", res)
         function updateProgress() {
             let totalSubtopics = 0;
             dsaCurriculum.forEach(cat => totalSubtopics += cat.subtopics.length);
-            
-            const completionPercent = totalSubtopics > 0 
-                ? Math.round((completedSubtopics.length / totalSubtopics) * 100) 
+
+            const completionPercent = totalSubtopics > 0
+                ? Math.round((completedSubtopics.length / totalSubtopics) * 100)
                 : 0;
-            
+
             progressFill.style.width = `${completionPercent}%`;
             progressText.textContent = `${completionPercent}%`;
         }
@@ -2182,13 +2303,13 @@ print("Returned:", res)
 
             const bubble = document.createElement('div');
             bubble.className = 'message-bubble';
-            
+
             if (isUser) {
                 bubble.textContent = text;
             } else {
                 // Parse markdown for assistant messages
                 bubble.innerHTML = marked.parse(text);
-                
+
                 // Add TTS controls for assistant replies
                 const controls = document.createElement('div');
                 controls.className = 'message-speech-controls';
@@ -2200,7 +2321,7 @@ print("Returned:", res)
                 });
                 bubble.appendChild(controls);
             }
-            
+
             bubbleWrapper.appendChild(bubble);
             chatMessages.appendChild(bubbleWrapper);
             chatMessages.scrollTop = chatMessages.scrollHeight;
@@ -2228,7 +2349,7 @@ print("Returned:", res)
                 <div class="loading-dot"></div>
                 <div class="loading-dot"></div>
             `;
-            
+
             bubbleWrapper.appendChild(bubble);
             chatMessages.appendChild(bubbleWrapper);
             chatMessages.scrollTop = chatMessages.scrollHeight;
@@ -2253,7 +2374,7 @@ print("Returned:", res)
             userInput.value = '';
             userInput.style.height = '38px'; // Reset height
             sendBtn.disabled = true;
-            
+
             showLoadingIndicator();
 
             try {
@@ -2287,16 +2408,16 @@ print("Returned:", res)
             const codeBlocks = container.querySelectorAll('pre code');
             codeBlocks.forEach(codeEl => {
                 if (codeEl.parentElement.classList.contains('code-decorated')) return;
-                
+
                 const pre = codeEl.parentElement;
                 pre.classList.add('code-decorated');
-                
+
                 const langClass = [...codeEl.classList].find(cls => cls.startsWith('language-'));
                 const lang = langClass ? langClass.replace('language-', '') : 'code';
-                
+
                 const wrapper = document.createElement('div');
                 wrapper.className = 'code-wrapper';
-                
+
                 const header = document.createElement('div');
                 header.className = 'code-header';
                 header.innerHTML = `
@@ -2308,17 +2429,17 @@ print("Returned:", res)
                         ` : ''}
                     </div>
                 `;
-                
+
                 pre.parentNode.insertBefore(wrapper, pre);
                 wrapper.appendChild(header);
                 wrapper.appendChild(pre);
-                
+
                 const codeText = codeEl.textContent;
                 header.querySelector('.copy-btn').addEventListener('click', () => {
                     navigator.clipboard.writeText(codeText);
                     showToast("Code copied to clipboard!", "success");
                 });
-                
+
                 const runInSandbox = header.querySelector('.run-btn');
                 if (runInSandbox) {
                     runInSandbox.addEventListener('click', () => {
@@ -2368,13 +2489,13 @@ print("Returned:", res)
                 showToast("No chat history to export.", "error");
                 return;
             }
-            
+
             let doc = "# DSA Assistant Conversation Transcript\n\n";
             messagesHistory.forEach((msg, idx) => {
                 doc += `### Question ${idx + 1}\n**Student:** ${msg.user}\n\n`;
                 doc += `**Tutor:**\n${msg.assistant}\n\n---\n\n`;
             });
-            
+
             const blob = new Blob([doc], { type: 'text/markdown' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -2403,39 +2524,39 @@ print("Returned:", res)
         function renderActiveVisualizer() {
             const structure = visTypeSelect.value;
             visDisplay.innerHTML = '';
-            
+
             if (structure === 'array') {
                 const container = document.createElement('div');
                 container.className = 'array-vis-container';
-                
+
                 arrayData.forEach((val, idx) => {
                     const wrapper = document.createElement('div');
                     wrapper.className = 'array-element-box';
-                    
+
                     const box = document.createElement('div');
                     box.className = 'array-element';
                     box.id = `arr-cell-${idx}`;
                     box.textContent = val;
-                    
+
                     const label = document.createElement('span');
                     label.className = 'array-index';
                     label.textContent = `idx ${idx}`;
-                    
+
                     wrapper.appendChild(box);
                     wrapper.appendChild(label);
                     container.appendChild(wrapper);
                 });
                 visDisplay.appendChild(container);
-            } 
+            }
             else if (structure === 'stack') {
                 const container = document.createElement('div');
                 container.className = 'stack-vis-container';
-                
+
                 stackData.forEach((val, idx) => {
                     const block = document.createElement('div');
                     block.className = 'stack-element';
                     block.textContent = val;
-                    
+
                     if (idx === stackData.length - 1) {
                         const ptr = document.createElement('div');
                         ptr.className = 'stack-top-pointer';
@@ -2444,76 +2565,76 @@ print("Returned:", res)
                     }
                     container.appendChild(block);
                 });
-                
+
                 if (stackData.length === 0) {
                     container.style.justifyContent = 'center';
                     container.innerHTML = '<span style="color:var(--text-muted);font-size:0.8rem;">Empty Stack</span>';
                 }
                 visDisplay.appendChild(container);
-            } 
+            }
             else if (structure === 'queue') {
                 const container = document.createElement('div');
                 container.className = 'queue-vis-container';
-                
+
                 queueData.forEach((val, idx) => {
                     const block = document.createElement('div');
                     block.className = 'queue-element';
                     block.textContent = val;
-                    
+
                     let pText = '';
                     if (idx === 0) pText = 'Front (Head)';
                     if (idx === queueData.length - 1 && queueData.length > 1) pText = 'Rear (Tail)';
                     else if (idx === queueData.length - 1) pText = 'Front & Rear';
-                    
+
                     if (pText) {
                         const ptr = document.createElement('div');
                         ptr.className = 'queue-pointer';
                         ptr.innerHTML = `<i class="fa-solid fa-arrow-up"></i><span>${pText}</span>`;
                         block.appendChild(ptr);
                     }
-                    
+
                     container.appendChild(block);
                 });
-                
+
                 if (queueData.length === 0) {
                     container.innerHTML = '<span style="color:var(--text-muted);font-size:0.8rem;margin:auto;">Empty Queue</span>';
                 }
                 visDisplay.appendChild(container);
-            } 
+            }
             else if (structure === 'linkedlist') {
                 const container = document.createElement('div');
                 container.className = 'linkedlist-vis-container';
-                
+
                 linkedListData.forEach((val, idx) => {
                     const node = document.createElement('div');
                     node.className = 'll-node';
-                    
+
                     const label = idx === 0 ? 'Head' : (idx === linkedListData.length - 1 ? 'Tail' : `next`);
                     node.innerHTML = `
                         <div class="ll-val">${val}</div>
                         <div class="ll-next">${label}</div>
                     `;
-                    
+
                     container.appendChild(node);
-                    
+
                     // Add arrow pointing to next
                     const arrow = document.createElement('div');
                     arrow.className = 'll-arrow';
                     arrow.innerHTML = `<i class="fa-solid fa-arrow-right-long"></i>`;
                     container.appendChild(arrow);
                 });
-                
+
                 const nil = document.createElement('div');
                 nil.className = 'll-null';
                 nil.textContent = 'NULL';
                 container.appendChild(nil);
-                
+
                 visDisplay.appendChild(container);
             }
         }
 
         // Action controls mappings
-        
+
         // --- ARRAY ACTIONS ---
         document.getElementById('btn-arr-append').addEventListener('click', () => {
             const valInput = document.getElementById('arr-val');
@@ -2524,16 +2645,16 @@ print("Returned:", res)
             renderActiveVisualizer();
             showToast(`Appended ${val} to list.`, "success");
         });
-        
+
         document.getElementById('btn-arr-insert').addEventListener('click', () => {
             const valInput = document.getElementById('arr-val');
             const idxInput = document.getElementById('arr-idx');
             const val = parseInt(valInput.value);
             const idx = parseInt(idxInput.value);
-            
+
             if (isNaN(val) || isNaN(idx)) return showToast("Enter val and index.", "error");
             if (idx < 0 || idx > arrayData.length) return showToast("Index out of bounds.", "error");
-            
+
             arrayData.splice(idx, 0, val);
             valInput.value = '';
             idxInput.value = '';
@@ -2544,10 +2665,10 @@ print("Returned:", res)
         document.getElementById('btn-arr-delete').addEventListener('click', () => {
             const idxInput = document.getElementById('arr-idx');
             const idx = parseInt(idxInput.value);
-            
+
             if (isNaN(idx)) return showToast("Specify index to delete.", "error");
             if (idx < 0 || idx >= arrayData.length) return showToast("Index out of bounds.", "error");
-            
+
             const removed = arrayData.splice(idx, 1);
             idxInput.value = '';
             renderActiveVisualizer();
@@ -2558,10 +2679,10 @@ print("Returned:", res)
             const valInput = document.getElementById('arr-val');
             const val = parseInt(valInput.value);
             if (isNaN(val)) return showToast("Enter search value.", "error");
-            
+
             const matchIndex = arrayData.indexOf(val);
             renderActiveVisualizer(); // Reset highlights
-            
+
             if (matchIndex !== -1) {
                 const cell = document.getElementById(`arr-cell-${matchIndex}`);
                 if (cell) {
@@ -2578,7 +2699,7 @@ print("Returned:", res)
             const valInput = document.getElementById('stack-val');
             const val = valInput.value.trim();
             if (!val) return showToast("Enter a value to push.", "error");
-            
+
             stackData.push(val);
             valInput.value = '';
             renderActiveVisualizer();
@@ -2587,7 +2708,7 @@ print("Returned:", res)
 
         document.getElementById('btn-stack-pop').addEventListener('click', () => {
             if (stackData.length === 0) return showToast("Stack Underflow! No items to pop.", "error");
-            
+
             // Animation handling
             const containers = visDisplay.querySelectorAll('.stack-element');
             const topElement = containers[containers.length - 1];
@@ -2612,7 +2733,7 @@ print("Returned:", res)
             const valInput = document.getElementById('queue-val');
             const val = valInput.value.trim();
             if (!val) return showToast("Enter enqueue value.", "error");
-            
+
             queueData.push(val);
             valInput.value = '';
             renderActiveVisualizer();
@@ -2621,7 +2742,7 @@ print("Returned:", res)
 
         document.getElementById('btn-queue-dequeue').addEventListener('click', () => {
             if (queueData.length === 0) return showToast("Queue Underflow! Empty queue.", "error");
-            
+
             const firstCell = visDisplay.querySelector('.queue-element');
             if (firstCell) {
                 firstCell.classList.add('dequeuing');
@@ -2644,7 +2765,7 @@ print("Returned:", res)
             const valInput = document.getElementById('ll-val');
             const val = valInput.value.trim();
             if (!val) return showToast("Enter value to insert.", "error");
-            
+
             linkedListData.unshift(val);
             valInput.value = '';
             renderActiveVisualizer();
@@ -2655,7 +2776,7 @@ print("Returned:", res)
             const valInput = document.getElementById('ll-val');
             const val = valInput.value.trim();
             if (!val) return showToast("Enter value to insert.", "error");
-            
+
             linkedListData.push(val);
             valInput.value = '';
             renderActiveVisualizer();
@@ -2664,7 +2785,7 @@ print("Returned:", res)
 
         document.getElementById('btn-ll-delhead').addEventListener('click', () => {
             if (linkedListData.length === 0) return showToast("Linked list is already empty.", "error");
-            
+
             const removed = linkedListData.shift();
             renderActiveVisualizer();
             showToast(`Deleted head node containing "${removed}".`, "success");
@@ -2678,4 +2799,5 @@ print("Returned:", res)
 
     </script>
 </body>
+
 </html>
