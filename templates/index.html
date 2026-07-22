@@ -12,13 +12,14 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- CodeMirror Editor Styling & Theme -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/dracula.min.css">
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/material-ocean.min.css">
 
     <!-- Syntax Highlighting (Highlight.js) -->
     <link rel="stylesheet"
@@ -26,55 +27,59 @@
 
     <style>
         :root {
-            --font-main: 'Inter', -apple-system, sans-serif;
+            --font-main: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             --font-code: 'JetBrains Mono', monospace;
 
-            /* Theme variables (Dark Mode default) */
-            --bg-gradient: radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 40%),
-                radial-gradient(circle at 90% 80%, rgba(76, 201, 240, 0.15) 0%, transparent 40%),
-                #090d16;
-            --bg-panel: rgba(17, 24, 39, 0.7);
-            --bg-panel-solid: #0d121f;
-            --bg-input: rgba(3, 7, 18, 0.6);
+            /* Premium OLED Black & White Theme */
+            --bg-gradient: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(120, 120, 120, 0.15), transparent),
+                #000000;
+            --bg-panel: rgba(12, 12, 12, 0.85);
+            --bg-panel-solid: #0A0A0A;
+            --bg-input: rgba(255, 255, 255, 0.06);
             --border-panel: rgba(255, 255, 255, 0.08);
-            --text-main: #f3f4f6;
-            --text-muted: #9ca3af;
-            --text-inverse: #0f172a;
+            --text-main: #FAFAFA;
+            --text-muted: #888888;
+            --text-inverse: #000000;
 
-            --color-primary: #6366f1;
-            --color-primary-dark: #4f46e5;
-            --color-primary-glow: rgba(99, 102, 241, 0.3);
-            --color-secondary: #06b6d4;
-            --color-secondary-glow: rgba(6, 182, 212, 0.25);
-            --color-success: #10b981;
-            --color-danger: #ef4444;
+            --color-primary: #FFFFFF;
+            --color-primary-dark: #D4D4D4;
+            --color-primary-glow: rgba(255, 255, 255, 0.08);
+            --color-secondary: #A3A3A3;
+            --color-secondary-glow: rgba(163, 163, 163, 0.1);
+            --color-success: #22C55E;
+            --color-danger: #EF4444;
+            --color-accent: #FFFFFF;
 
-            --shadow-premium: 0 10px 30px rgba(0, 0, 0, 0.35);
+            --shadow-premium: 0 4px 24px rgba(0, 0, 0, 0.6);
+            --shadow-float: 0 12px 40px rgba(0, 0, 0, 0.5);
             --radius-main: 16px;
-            --radius-btn: 999px;
+            --radius-btn: 10px;
 
-            --sidebar-width: 290px;
-            --sandbox-width: 480px;
+            --sidebar-width: 300px;
+            --sandbox-width: 500px;
         }
 
         [data-theme="light"] {
-            --bg-gradient: radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.06) 0%, transparent 40%),
-                radial-gradient(circle at 90% 80%, rgba(76, 201, 240, 0.06) 0%, transparent 40%),
-                #f1f5f9;
-            --bg-panel: rgba(255, 255, 255, 0.75);
-            --bg-panel-solid: #ffffff;
-            --bg-input: rgba(241, 245, 249, 0.9);
+            --bg-gradient: #FFFFFF;
+            --bg-panel: rgba(255, 255, 255, 0.95);
+            --bg-panel-solid: #FFFFFF;
+            --bg-input: rgba(0, 0, 0, 0.04);
             --border-panel: rgba(0, 0, 0, 0.08);
-            --text-main: #1f2937;
-            --text-muted: #6b7280;
-            --text-inverse: #ffffff;
+            --text-main: #0A0A0A;
+            --text-muted: #6B6B6B;
+            --text-inverse: #FFFFFF;
 
-            --color-primary: #4f46e5;
-            --color-primary-dark: #3730a3;
-            --color-primary-glow: rgba(79, 70, 229, 0.15);
-            --color-secondary: #0891b2;
-            --color-secondary-glow: rgba(8, 145, 178, 0.15);
-            --color-success: #16a34a;
+            --color-primary: #000000;
+            --color-primary-dark: #171717;
+            --color-primary-glow: rgba(0, 0, 0, 0.05);
+            --color-secondary: #525252;
+            --color-secondary-glow: rgba(82, 82, 82, 0.08);
+            --color-success: #16A34A;
+            --color-danger: #DC2626;
+            --color-accent: #000000;
+
+            --shadow-premium: 0 2px 12px rgba(0, 0, 0, 0.08);
+            --shadow-float: 0 8px 32px rgba(0, 0, 0, 0.12);
         }
 
         * {
@@ -86,34 +91,36 @@
         body {
             font-family: var(--font-main);
             background: var(--bg-gradient);
+            background-attachment: fixed;
             color: var(--text-main);
             height: 100vh;
             display: grid;
             grid-template-rows: 64px 1fr;
-            grid-template-columns: var(--sidebar-width) 1fr var(--sandbox-width);
+            grid-template-columns: var(--sidebar-width) minmax(0, 1fr) var(--sandbox-width);
             grid-template-areas:
                 "header header header"
                 "sidebar chat sandbox";
             overflow: hidden;
             transition: background 0.3s ease, color 0.3s ease;
+            letter-spacing: -0.01em;
         }
 
         body.sidebar-collapsed {
-            grid-template-columns: 0px 1fr var(--sandbox-width);
+            grid-template-columns: 0px minmax(0, 1fr) var(--sandbox-width);
         }
 
         body.sandbox-collapsed {
-            grid-template-columns: var(--sidebar-width) 1fr 0px;
+            grid-template-columns: var(--sidebar-width) minmax(0, 1fr) 0px;
         }
 
         body.sidebar-collapsed.sandbox-collapsed {
-            grid-template-columns: 0px 1fr 0px;
+            grid-template-columns: 0px minmax(0, 1fr) 0px;
         }
 
         /* Scrollbar Styling */
         ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
+            width: 4px;
+            height: 4px;
         }
 
         ::-webkit-scrollbar-track {
@@ -121,26 +128,26 @@
         }
 
         ::-webkit-scrollbar-thumb {
-            background: rgba(156, 163, 175, 0.25);
+            background: var(--border-panel);
             border-radius: 4px;
         }
 
         ::-webkit-scrollbar-thumb:hover {
-            background: rgba(156, 163, 175, 0.45);
+            background: rgba(255, 255, 255, 0.2);
         }
 
         /* HEADER */
         header {
             grid-area: header;
             background: var(--bg-panel);
-            backdrop-filter: blur(16px);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
             border-bottom: 1px solid var(--border-panel);
             padding: 0 1.5rem;
             display: flex;
             align-items: center;
             justify-content: space-between;
             z-index: 100;
-            box-shadow: var(--shadow-premium);
         }
 
         .header-brand {
@@ -151,9 +158,7 @@
 
         .header-logo {
             font-size: 1.5rem;
-            background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: var(--text-main);
             font-weight: 800;
             display: flex;
             align-items: center;
@@ -161,9 +166,7 @@
         }
 
         .header-logo i {
-            background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: var(--text-main);
         }
 
         .header-title-text h1 {
@@ -184,24 +187,25 @@
         }
 
         .header-btn {
-            background: rgba(156, 163, 175, 0.1);
+            background: transparent;
             border: 1px solid var(--border-panel);
-            color: var(--text-main);
-            width: 38px;
-            height: 38px;
-            border-radius: 10px;
+            color: var(--text-muted);
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.2s ease;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .header-btn:hover {
             background: var(--color-primary-glow);
-            border-color: var(--color-primary);
-            color: var(--color-primary);
-            transform: translateY(-1px);
+            border-color: var(--text-muted);
+            color: var(--text-main);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-float);
         }
 
         .header-btn.active {
@@ -241,13 +245,15 @@
         aside {
             grid-area: sidebar;
             background: var(--bg-panel);
-            backdrop-filter: blur(12px);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
             border-right: 1px solid var(--border-panel);
             display: flex;
             flex-direction: column;
             overflow: hidden;
             width: var(--sidebar-width);
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), margin-left 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 90;
         }
 
         body.sidebar-collapsed aside {
@@ -281,7 +287,14 @@
             border: 1px solid var(--border-panel);
             border-radius: 12px;
             overflow: hidden;
-            background: rgba(3, 7, 18, 0.2);
+            background: var(--bg-input);
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .curriculum-category:hover {
+            border-color: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-float);
         }
 
         .category-header {
@@ -295,7 +308,7 @@
         }
 
         .category-header:hover {
-            background: rgba(156, 163, 175, 0.05);
+            background: var(--color-primary-glow);
         }
 
         .category-title {
@@ -463,90 +476,84 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0.75rem 1.25rem;
+            padding: 0.75rem 2rem;
             border-bottom: 1px solid var(--border-panel);
-            background: rgba(13, 18, 31, 0.3);
+            background: rgba(5, 5, 5, 0.2);
         }
 
         .chat-topic-indicator {
             font-size: 0.85rem;
-            font-weight: 600;
+            font-weight: 500;
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            color: var(--color-primary);
+            color: var(--text-muted);
         }
 
         #chat-messages {
             flex: 1;
             overflow-y: auto;
-            padding: 1.5rem;
+            padding: 2rem;
             display: flex;
             flex-direction: column;
-            gap: 1.25rem;
+            gap: 1.5rem;
+            align-items: center;
+            /* Center content like ChatGPT/Claude */
         }
 
         .message-bubble-wrapper {
             display: flex;
-            gap: 0.85rem;
-            max-width: 82%;
-            animation: bubbleFadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            gap: 1rem;
+            width: 100%;
+            max-width: 768px;
+            /* Standard conversational width limit */
+            animation: bubbleFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .message-bubble-wrapper.user {
-            align-self: flex-end;
             flex-direction: row-reverse;
         }
 
-        .message-bubble-wrapper.assistant {
-            align-self: flex-start;
-        }
-
         .message-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: var(--bg-panel-solid);
-            border: 1px solid var(--border-panel);
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            background: transparent;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 0.85rem;
             flex-shrink: 0;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            margin-top: 4px;
         }
 
         .message-bubble-wrapper.user .message-avatar {
-            background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
-            color: white;
-            border: none;
+            background: var(--text-main);
+            color: var(--bg-panel-solid);
         }
 
         .message-bubble-wrapper.assistant .message-avatar {
-            border-color: var(--color-primary);
-            color: var(--color-primary);
+            background: var(--color-primary);
+            color: #fff;
+            box-shadow: 0 0 15px var(--color-primary-glow);
         }
 
         .message-bubble {
-            padding: 1rem 1.25rem;
-            border-radius: 18px;
+            padding: 0.5rem 0;
             line-height: 1.6;
-            font-size: 0.9rem;
-            box-shadow: var(--shadow-premium);
+            font-size: 0.95rem;
             position: relative;
+            flex: 1;
         }
 
         .message-bubble-wrapper.user .message-bubble {
-            background: linear-gradient(135deg, var(--color-primary-dark), var(--color-primary));
-            color: white;
-            border-top-right-radius: 2px;
+            color: var(--text-main);
+            background: transparent;
         }
 
         .message-bubble-wrapper.assistant .message-bubble {
-            background: var(--bg-panel-solid);
-            border: 1px solid var(--border-panel);
-            border-top-left-radius: 2px;
             color: var(--text-main);
+            background: transparent;
         }
 
         /* Markdown elements inside message bubble */
@@ -783,19 +790,19 @@
         }
 
         .suggestion-card {
-            background: var(--bg-panel-solid);
+            background: var(--bg-input);
             border: 1px solid var(--border-panel);
-            padding: 0.9rem;
+            padding: 1rem;
             border-radius: 12px;
             cursor: pointer;
             text-align: left;
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .suggestion-card:hover {
-            border-color: var(--color-primary);
-            transform: translateY(-2px);
+            border-color: var(--text-muted);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-float);
             background: var(--color-primary-glow);
         }
 
@@ -815,29 +822,34 @@
 
         /* INPUT AREA */
         #input-container {
-            padding: 1.25rem 1.5rem 1.5rem;
-            background: rgba(13, 18, 31, 0.4);
-            border-top: 1px solid var(--border-panel);
+            padding: 1rem 2rem 2rem;
+            background: transparent;
+            border-top: none;
             display: flex;
             flex-direction: column;
             gap: 0.5rem;
+            align-items: center;
         }
 
         .input-bar-wrapper {
             display: flex;
             align-items: flex-end;
             gap: 0.75rem;
-            background: var(--bg-input);
+            background: var(--bg-panel);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             border: 1px solid var(--border-panel);
-            border-radius: 24px;
-            padding: 0.4rem 0.6rem 0.4rem 1.2rem;
-            transition: all 0.2s ease;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            border-radius: 28px;
+            padding: 0.5rem 0.8rem 0.5rem 1.5rem;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: none;
+            width: 100%;
+            max-width: 768px;
         }
 
         .input-bar-wrapper:focus-within {
-            border-color: var(--color-primary);
-            box-shadow: 0 0 0 3px var(--color-primary-glow);
+            border-color: var(--text-muted);
+            box-shadow: none;
         }
 
         #user-input {
@@ -845,14 +857,14 @@
             background: transparent;
             border: none;
             color: var(--text-main);
-            font-size: 0.95rem;
+            font-size: 1rem;
             font-family: var(--font-main);
             outline: none;
             resize: none;
-            max-height: 120px;
-            height: 38px;
-            padding: 8px 0;
-            line-height: 1.4;
+            max-height: 200px;
+            height: 44px;
+            padding: 10px 0;
+            line-height: 1.5;
         }
 
         .input-action-btn {
@@ -912,13 +924,15 @@
         #sandbox-panel {
             grid-area: sandbox;
             background: var(--bg-panel);
-            backdrop-filter: blur(12px);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
             border-left: 1px solid var(--border-panel);
             display: flex;
             flex-direction: column;
             overflow: hidden;
             width: var(--sandbox-width);
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), margin-right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), margin-right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 90;
         }
 
         body.sandbox-collapsed #sandbox-panel {
@@ -1424,20 +1438,20 @@
 
         .bst-node {
             position: absolute;
-            width: 44px;
-            height: 44px;
+            width: 48px;
+            height: 48px;
             border-radius: 50%;
-            background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+            background: linear-gradient(135deg, var(--color-primary-dark), var(--color-primary));
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
             font-weight: 700;
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             font-family: var(--font-code);
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.2);
             transform: translate(-50%, -50%);
-            animation: fadeIn 0.3s ease;
+            animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
             z-index: 1;
         }
 
@@ -1499,15 +1513,15 @@
         }
 
         .ht-entry {
-            background: linear-gradient(135deg, var(--color-secondary), var(--color-primary));
-            padding: 6px 10px;
-            border-radius: 6px;
+            background: linear-gradient(135deg, var(--color-primary-dark), var(--color-primary));
+            padding: 8px 12px;
+            border-radius: 8px;
             color: white;
             font-family: var(--font-code);
-            font-size: 0.75rem;
+            font-size: 0.8rem;
             font-weight: 600;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-            animation: fadeIn 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), inset 0 1px 2px rgba(255, 255, 255, 0.15);
+            animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .ht-arrow {
@@ -1525,25 +1539,28 @@
         /* FLOATING TOASTS */
         .toast-container {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
+            bottom: 30px;
+            right: 30px;
             z-index: 1000;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 12px;
         }
 
         .toast {
-            background: var(--bg-panel-solid);
+            background: rgba(15, 15, 17, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-panel);
             border-left: 4px solid var(--color-primary);
             color: var(--text-main);
-            padding: 0.75rem 1.25rem;
-            border-radius: 8px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
             display: flex;
             align-items: center;
-            gap: 8px;
-            font-size: 0.8rem;
+            gap: 12px;
+            font-size: 0.85rem;
             font-weight: 600;
             animation: toastIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
             border: 1px solid var(--border-panel);
@@ -1900,17 +1917,21 @@ print("Returned:", res)
                     <!-- Binary Tree Controls -->
                     <div id="ctrls-binarytree" class="visualizer-control-group">
                         <input type="number" id="bst-val" class="visualizer-input" placeholder="Value">
-                        <button id="btn-bst-insert" class="visualizer-btn"><i class="fa-solid fa-plus"></i> Insert</button>
-                        <button id="btn-bst-search" class="visualizer-btn secondary-vis-btn"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
+                        <button id="btn-bst-insert" class="visualizer-btn"><i class="fa-solid fa-plus"></i>
+                            Insert</button>
+                        <button id="btn-bst-search" class="visualizer-btn secondary-vis-btn"><i
+                                class="fa-solid fa-magnifying-glass"></i> Search</button>
                         <button id="btn-bst-clear" class="visualizer-btn secondary-vis-btn">Clear</button>
                     </div>
 
                     <!-- Hash Table Controls -->
                     <div id="ctrls-hashtable" class="visualizer-control-group">
                         <input type="text" id="ht-key" class="visualizer-input" placeholder="Key" style="width:80px;">
-                        <input type="text" id="ht-value" class="visualizer-input" placeholder="Value" style="width:80px;">
+                        <input type="text" id="ht-value" class="visualizer-input" placeholder="Value"
+                            style="width:80px;">
                         <button id="btn-ht-put" class="visualizer-btn"><i class="fa-solid fa-plus"></i> Put</button>
-                        <button id="btn-ht-delete" class="visualizer-btn secondary-vis-btn"><i class="fa-solid fa-trash-can"></i> Delete</button>
+                        <button id="btn-ht-delete" class="visualizer-btn secondary-vis-btn"><i
+                                class="fa-solid fa-trash-can"></i> Delete</button>
                         <button id="btn-ht-clear" class="visualizer-btn secondary-vis-btn">Clear</button>
                     </div>
                 </div>
@@ -2035,21 +2056,21 @@ print("Returned:", res)
 
         // Initialize CodeMirror Editor
         const codeEditor = CodeMirror.fromTextArea(document.getElementById('python-editor-textarea'), {
-            mode: 'python',
-            theme: 'dracula',
+            mode: "python",
+            theme: "material-ocean",
             lineNumbers: true,
             indentUnit: 4,
+            matchBrackets: true,
             smartIndent: true,
             tabSize: 4,
             indentWithTabs: false,
-            matchBrackets: true,
             autoCloseBrackets: true
         });
 
         // Keyboard shortcut: Cmd/Ctrl+Enter to run code in sandbox
         codeEditor.addKeyMap({
-            'Cmd-Enter': function() { if (!runCodeBtn.disabled) runCodeBtn.click(); },
-            'Ctrl-Enter': function() { if (!runCodeBtn.disabled) runCodeBtn.click(); }
+            'Cmd-Enter': function () { if (!runCodeBtn.disabled) runCodeBtn.click(); },
+            'Ctrl-Enter': function () { if (!runCodeBtn.disabled) runCodeBtn.click(); }
         });
 
         // Initialize Pyodide on Page Load

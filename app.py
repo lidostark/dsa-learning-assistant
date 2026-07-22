@@ -14,6 +14,7 @@ app.secret_key = os.environ.get("FLASK_SECRET_KEY", "dsa-learning-assistant-secr
 env_path = Path(__file__).resolve().parent / ".env"
 if env_path.exists():
     try:
+        # pyrefly: ignore [missing-import]
         from dotenv import load_dotenv
     except ImportError as exc:
         raise ImportError("python-dotenv is required to load .env. Install it with `pip install python-dotenv`.") from exc
