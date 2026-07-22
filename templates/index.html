@@ -1408,6 +1408,120 @@
             flex-shrink: 0;
         }
 
+        /* Binary Search Tree visual design */
+        .bst-vis-container {
+            position: relative;
+            width: 100%;
+            min-height: 250px;
+        }
+
+        .bst-vis-container svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+        }
+
+        .bst-node {
+            position: absolute;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 0.85rem;
+            font-family: var(--font-code);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            transform: translate(-50%, -50%);
+            animation: fadeIn 0.3s ease;
+            z-index: 1;
+        }
+
+        .bst-node.highlight {
+            border: 3px solid var(--color-success);
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.5);
+            transform: translate(-50%, -50%) scale(1.2);
+        }
+
+        .bst-edge {
+            stroke: var(--color-primary);
+            stroke-width: 2;
+            opacity: 0.5;
+        }
+
+        .bst-empty-label {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        /* Hash Table visual design */
+        .hashtable-vis-container {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            width: 100%;
+            max-width: 400px;
+            padding: 10px;
+        }
+
+        .ht-bucket {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-height: 40px;
+        }
+
+        .ht-index {
+            width: 36px;
+            height: 36px;
+            background: rgba(156, 163, 175, 0.15);
+            border: 1px solid var(--border-panel);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-code);
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            flex-shrink: 0;
+        }
+
+        .ht-entries {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .ht-entry {
+            background: linear-gradient(135deg, var(--color-secondary), var(--color-primary));
+            padding: 6px 10px;
+            border-radius: 6px;
+            color: white;
+            font-family: var(--font-code);
+            font-size: 0.75rem;
+            font-weight: 600;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .ht-arrow {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            flex-shrink: 0;
+        }
+
+        .ht-empty {
+            color: var(--text-muted);
+            font-size: 0.7rem;
+            font-style: italic;
+        }
+
         /* FLOATING TOASTS */
         .toast-container {
             position: fixed;
@@ -1730,6 +1844,8 @@ print("Returned:", res)
                         <option value="stack">Stack (LIFO)</option>
                         <option value="queue">Queue (FIFO)</option>
                         <option value="linkedlist">Linked List</option>
+                        <option value="binarytree">Binary Search Tree</option>
+                        <option value="hashtable">Hash Table</option>
                     </select>
                 </div>
 
@@ -1779,6 +1895,23 @@ print("Returned:", res)
                         <button id="btn-ll-tail" class="visualizer-btn secondary-vis-btn">Insert Tail</button>
                         <button id="btn-ll-delhead" class="visualizer-btn secondary-vis-btn">Del Head</button>
                         <button id="btn-ll-clear" class="visualizer-btn secondary-vis-btn">Clear</button>
+                    </div>
+
+                    <!-- Binary Tree Controls -->
+                    <div id="ctrls-binarytree" class="visualizer-control-group">
+                        <input type="number" id="bst-val" class="visualizer-input" placeholder="Value">
+                        <button id="btn-bst-insert" class="visualizer-btn"><i class="fa-solid fa-plus"></i> Insert</button>
+                        <button id="btn-bst-search" class="visualizer-btn secondary-vis-btn"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
+                        <button id="btn-bst-clear" class="visualizer-btn secondary-vis-btn">Clear</button>
+                    </div>
+
+                    <!-- Hash Table Controls -->
+                    <div id="ctrls-hashtable" class="visualizer-control-group">
+                        <input type="text" id="ht-key" class="visualizer-input" placeholder="Key" style="width:80px;">
+                        <input type="text" id="ht-value" class="visualizer-input" placeholder="Value" style="width:80px;">
+                        <button id="btn-ht-put" class="visualizer-btn"><i class="fa-solid fa-plus"></i> Put</button>
+                        <button id="btn-ht-delete" class="visualizer-btn secondary-vis-btn"><i class="fa-solid fa-trash-can"></i> Delete</button>
+                        <button id="btn-ht-clear" class="visualizer-btn secondary-vis-btn">Clear</button>
                     </div>
                 </div>
             </div>
@@ -1911,6 +2044,12 @@ print("Returned:", res)
             indentWithTabs: false,
             matchBrackets: true,
             autoCloseBrackets: true
+        });
+
+        // Keyboard shortcut: Cmd/Ctrl+Enter to run code in sandbox
+        codeEditor.addKeyMap({
+            'Cmd-Enter': function() { if (!runCodeBtn.disabled) runCodeBtn.click(); },
+            'Ctrl-Enter': function() { if (!runCodeBtn.disabled) runCodeBtn.click(); }
         });
 
         // Initialize Pyodide on Page Load
@@ -2112,30 +2251,40 @@ print("Returned:", res)
             }
 
             const code = codeEditor.getValue();
-            appendToConsole(">>> Running code...\n", "info");
+            if (!code.trim()) {
+                showToast("No code to execute.", "error");
+                return;
+            }
 
-            // Redirect standard output to our virtual console
+            // Show running state
+            runCodeBtn.disabled = true;
+            runCodeBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Running...';
+            appendToConsole(">>> Running code...", "info");
+
+            // Redirect stdout and stderr to our virtual console
             pyodideInstance.setStdout({
-                write: (text) => {
+                batched: (text) => {
                     appendToConsole(text);
-                    return text.length;
                 }
             });
 
             pyodideInstance.setStderr({
-                write: (text) => {
+                batched: (text) => {
                     appendToConsole(text, 'stderr');
-                    return text.length;
                 }
             });
 
             try {
                 const result = await pyodideInstance.runPythonAsync(code);
-                if (result !== undefined) {
-                    appendToConsole(`Result: ${result}\n`, "success");
+                if (result !== undefined && result !== null) {
+                    appendToConsole(`Result: ${result}`, "success");
                 }
+                appendToConsole(">>> Execution complete.", "info");
             } catch (err) {
-                appendToConsole(`${err.message}\n`, "stderr");
+                appendToConsole(`${err.message}`, "stderr");
+            } finally {
+                runCodeBtn.disabled = false;
+                runCodeBtn.innerHTML = '<i class="fa-solid fa-play"></i> Run Code';
             }
         });
 
@@ -2512,6 +2661,185 @@ print("Returned:", res)
         let queueData = ['A', 'B', 'C'];
         let linkedListData = ['Node A', 'Node B'];
 
+        // --- BST STATE & FUNCTIONS ---
+        class BSTNode {
+            constructor(val) { this.val = val; this.left = null; this.right = null; }
+        }
+        let bstRoot = null;
+
+        function bstInsert(val) {
+            const newNode = new BSTNode(val);
+            if (!bstRoot) { bstRoot = newNode; return; }
+            let cur = bstRoot;
+            while (true) {
+                if (val < cur.val) {
+                    if (!cur.left) { cur.left = newNode; return; }
+                    cur = cur.left;
+                } else if (val > cur.val) {
+                    if (!cur.right) { cur.right = newNode; return; }
+                    cur = cur.right;
+                } else { return; } // duplicate
+            }
+        }
+
+        function bstSearch(val) {
+            let cur = bstRoot;
+            while (cur) {
+                if (val === cur.val) return true;
+                cur = val < cur.val ? cur.left : cur.right;
+            }
+            return false;
+        }
+
+        // Initialize BST with demo values
+        [50, 30, 70, 20, 40, 60, 80].forEach(v => bstInsert(v));
+
+        function renderBST(highlightVal) {
+            const container = document.createElement('div');
+            container.className = 'bst-vis-container';
+
+            if (!bstRoot) {
+                container.style.display = 'flex';
+                container.style.alignItems = 'center';
+                container.style.justifyContent = 'center';
+                container.style.height = '100%';
+                container.innerHTML = '<span class="bst-empty-label">Empty BST — Insert values to build the tree</span>';
+                visDisplay.appendChild(container);
+                return;
+            }
+
+            function getDepth(n) { if (!n) return 0; return 1 + Math.max(getDepth(n.left), getDepth(n.right)); }
+            const depth = getDepth(bstRoot);
+            const cWidth = visDisplay.clientWidth ? visDisplay.clientWidth - 30 : 400;
+            const cHeight = Math.max(250, depth * 70);
+            container.style.position = 'relative';
+            container.style.width = cWidth + 'px';
+            container.style.height = cHeight + 'px';
+
+            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svg.setAttribute('width', cWidth);
+            svg.setAttribute('height', cHeight);
+            svg.style.position = 'absolute';
+            svg.style.top = '0';
+            svg.style.left = '0';
+            svg.style.pointerEvents = 'none';
+            container.appendChild(svg);
+
+            function drawNode(node, x, y, spread) {
+                if (!node) return;
+                const nextY = y + 65;
+                const nextSpread = Math.max(spread / 2, 20);
+
+                if (node.left) {
+                    const lx = x - spread;
+                    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    line.setAttribute('x1', x); line.setAttribute('y1', y);
+                    line.setAttribute('x2', lx); line.setAttribute('y2', nextY);
+                    line.setAttribute('class', 'bst-edge');
+                    svg.appendChild(line);
+                    drawNode(node.left, lx, nextY, nextSpread);
+                }
+                if (node.right) {
+                    const rx = x + spread;
+                    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    line.setAttribute('x1', x); line.setAttribute('y1', y);
+                    line.setAttribute('x2', rx); line.setAttribute('y2', nextY);
+                    line.setAttribute('class', 'bst-edge');
+                    svg.appendChild(line);
+                    drawNode(node.right, rx, nextY, nextSpread);
+                }
+
+                const el = document.createElement('div');
+                el.className = 'bst-node' + (highlightVal !== undefined && node.val === highlightVal ? ' highlight' : '');
+                el.style.left = x + 'px';
+                el.style.top = y + 'px';
+                el.textContent = node.val;
+                container.appendChild(el);
+            }
+
+            drawNode(bstRoot, cWidth / 2, 35, cWidth / 4);
+            visDisplay.appendChild(container);
+        }
+
+        // --- HASH TABLE STATE & FUNCTIONS ---
+        const HASH_TABLE_SIZE = 8;
+        let hashTable = Array.from({ length: HASH_TABLE_SIZE }, () => []);
+
+        function simpleHash(key) {
+            let h = 0;
+            for (let i = 0; i < key.length; i++) {
+                h = (h * 31 + key.charCodeAt(i)) % HASH_TABLE_SIZE;
+            }
+            return h;
+        }
+
+        function hashTablePut(key, value) {
+            const idx = simpleHash(key);
+            const existing = hashTable[idx].find(e => e.key === key);
+            if (existing) { existing.value = value; }
+            else { hashTable[idx].push({ key, value }); }
+        }
+
+        function hashTableDelete(key) {
+            const idx = simpleHash(key);
+            hashTable[idx] = hashTable[idx].filter(e => e.key !== key);
+        }
+
+        // Initialize hash table with demo data
+        hashTablePut('name', 'Alice');
+        hashTablePut('age', '25');
+        hashTablePut('city', 'NYC');
+        hashTablePut('lang', 'Python');
+        hashTablePut('color', 'Blue');
+
+        function renderHashTable() {
+            const container = document.createElement('div');
+            container.className = 'hashtable-vis-container';
+
+            hashTable.forEach((bucket, idx) => {
+                const row = document.createElement('div');
+                row.className = 'ht-bucket';
+
+                const indexEl = document.createElement('div');
+                indexEl.className = 'ht-index';
+                indexEl.textContent = idx;
+                row.appendChild(indexEl);
+
+                const arrow = document.createElement('span');
+                arrow.className = 'ht-arrow';
+                arrow.innerHTML = '&#x2192;';
+                row.appendChild(arrow);
+
+                const entries = document.createElement('div');
+                entries.className = 'ht-entries';
+
+                if (bucket.length === 0) {
+                    const empty = document.createElement('span');
+                    empty.className = 'ht-empty';
+                    empty.textContent = '(empty)';
+                    entries.appendChild(empty);
+                } else {
+                    bucket.forEach((entry, i) => {
+                        if (i > 0) {
+                            const chain = document.createElement('span');
+                            chain.className = 'ht-arrow';
+                            chain.innerHTML = '&#x2192;';
+                            entries.appendChild(chain);
+                        }
+                        const entryEl = document.createElement('div');
+                        entryEl.className = 'ht-entry';
+                        entryEl.textContent = entry.key + ': ' + entry.value;
+                        entries.appendChild(entryEl);
+                    });
+                }
+
+                row.appendChild(entries);
+                container.appendChild(row);
+            });
+
+            visDisplay.appendChild(container);
+        }
+
         visTypeSelect.addEventListener('change', () => {
             // Hide all panels
             document.querySelectorAll('.visualizer-control-group').forEach(el => el.classList.remove('active'));
@@ -2630,6 +2958,12 @@ print("Returned:", res)
                 container.appendChild(nil);
 
                 visDisplay.appendChild(container);
+            }
+            else if (structure === 'binarytree') {
+                renderBST();
+            }
+            else if (structure === 'hashtable') {
+                renderHashTable();
             }
         }
 
@@ -2795,6 +3129,64 @@ print("Returned:", res)
             linkedListData = [];
             renderActiveVisualizer();
             showToast("Linked list cleared.", "info");
+        });
+
+        // --- BST ACTIONS ---
+        document.getElementById('btn-bst-insert').addEventListener('click', () => {
+            const val = parseInt(document.getElementById('bst-val').value);
+            if (isNaN(val)) return showToast("Enter a numeric value.", "error");
+            bstInsert(val);
+            document.getElementById('bst-val').value = '';
+            renderActiveVisualizer();
+            showToast('Inserted ' + val + ' into BST.', 'success');
+        });
+
+        document.getElementById('btn-bst-search').addEventListener('click', () => {
+            const val = parseInt(document.getElementById('bst-val').value);
+            if (isNaN(val)) return showToast("Enter a value to search.", "error");
+            visDisplay.innerHTML = '';
+            renderBST(val);
+            if (bstSearch(val)) {
+                showToast('Found ' + val + ' in BST!', 'success');
+            } else {
+                showToast('Value ' + val + ' not found in BST.', 'error');
+            }
+        });
+
+        document.getElementById('btn-bst-clear').addEventListener('click', () => {
+            bstRoot = null;
+            renderActiveVisualizer();
+            showToast("BST cleared.", "info");
+        });
+
+        // --- HASH TABLE ACTIONS ---
+        document.getElementById('btn-ht-put').addEventListener('click', () => {
+            const key = document.getElementById('ht-key').value.trim();
+            const value = document.getElementById('ht-value').value.trim();
+            if (!key || !value) return showToast("Enter both key and value.", "error");
+            hashTablePut(key, value);
+            document.getElementById('ht-key').value = '';
+            document.getElementById('ht-value').value = '';
+            renderActiveVisualizer();
+            showToast('Put "' + key + ': ' + value + '" into bucket ' + simpleHash(key) + '.', 'success');
+        });
+
+        document.getElementById('btn-ht-delete').addEventListener('click', () => {
+            const key = document.getElementById('ht-key').value.trim();
+            if (!key) return showToast("Enter a key to delete.", "error");
+            const idx = simpleHash(key);
+            const exists = hashTable[idx].some(e => e.key === key);
+            if (!exists) return showToast('Key "' + key + '" not found.', 'error');
+            hashTableDelete(key);
+            document.getElementById('ht-key').value = '';
+            renderActiveVisualizer();
+            showToast('Deleted key "' + key + '" from bucket ' + idx + '.', 'success');
+        });
+
+        document.getElementById('btn-ht-clear').addEventListener('click', () => {
+            hashTable = Array.from({ length: HASH_TABLE_SIZE }, () => []);
+            renderActiveVisualizer();
+            showToast("Hash table cleared.", "info");
         });
 
     </script>

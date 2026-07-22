@@ -79,12 +79,6 @@ def reset():
     if session_id in chat_sessions:
         del chat_sessions[session_id]
 
-@app.route('/health')
-def health():
-    # check health of the app and return the status
-    from datetime import datetime, timezone
-    return {"status": "healthy", "timestamp": datetime.now(timezone.utc).isoformat()}, 200
-    
     # Generate a fresh session ID and initialize a new chat session
     new_session_id = str(uuid.uuid4())
     session['session_id'] = new_session_id
@@ -95,6 +89,12 @@ def health():
         )
     )
     return jsonify({'status': 'success', 'message': 'Chat session reset successfully.'})
+
+@app.route('/health')
+def health():
+    # check health of the app and return the status
+    from datetime import datetime, timezone
+    return {"status": "healthy", "timestamp": datetime.now(timezone.utc).isoformat()}, 200
 
 if __name__ == '__main__':
     app.run(debug=True)
