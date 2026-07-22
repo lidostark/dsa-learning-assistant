@@ -78,6 +78,12 @@ def reset():
     session_id = session.get('session_id')
     if session_id in chat_sessions:
         del chat_sessions[session_id]
+
+@app.route('/health')
+def health():
+    # check health of the app and return the status
+    from datetime import datetime, timezone
+    return {"status": "healthy", "timestamp": datetime.now(timezone.utc).isoformat()}, 200
     
     # Generate a fresh session ID and initialize a new chat session
     new_session_id = str(uuid.uuid4())
